@@ -1,0 +1,74 @@
+# Part of `travis-lazarus` (https://github.com/nielsAD/travis-lazarus)
+# License: MIT
+
+language: generic
+sudo: required
+dist: trusty
+
+os:
+  - linux
+  - osx
+
+env:
+  global:
+    - WINEPREFIX=~/.winelaz
+    - DISPLAY=:99.0
+  matrix:
+   # - LAZ_PKG=true  # Use the latest version from the default package manager
+    - LAZ_VER=1.6 # Use specific (binary) release
+    - LAZ_VER=1.8.0
+    - LAZ_VER=1.8.4
+   # - LAZ_VER=2.0RC1
+
+matrix:
+  include:
+    - os: linux
+      env: LAZ_VER=1.6  LAZ_ENV=wine WINEARCH=win32 LAZ_OPT="--os=win32 --cpu=i386"
+    - os: linux
+      env: LAZ_VER=1.8.0 LAZ_ENV=wine WINEARCH=win32 LAZ_OPT="--os=win32 --cpu=i386"
+    - os: linux
+      env: LAZ_VER=1.8.4 LAZ_ENV=wine WINEARCH=win32 LAZ_OPT="--os=win32 --cpu=i386"
+   # - os: linux
+   #   env: LAZ_VER=2.0RC1 LAZ_ENV=wine WINEARCH=win32 LAZ_OPT="--os=win32 --cpu=i386"
+    - os: linux
+      env: LAZ_VER=1.6  LAZ_ENV=wine WINEARCH=win64 LAZ_OPT="--os=win64 --cpu=x86_64"
+    - os: linux
+      env: LAZ_VER=1.8.0 LAZ_ENV=wine WINEARCH=win64 LAZ_OPT="--os=win64 --cpu=x86_64"
+    - os: linux
+      env: LAZ_VER=1.8.4 LAZ_ENV=wine WINEARCH=win64 LAZ_OPT="--os=win64 --cpu=x86_64"
+   # - os: linux
+   #   env: LAZ_VER=2.0RC1 LAZ_ENV=wine WINEARCH=win64 LAZ_OPT="--os=win64 --cpu=x86_64"
+    - os: linux
+      env: LAZ_VER=1.6  LAZ_ENV=qemu-arm LAZ_OPT="--os=linux --cpu=arm"
+    - os: linux
+      env: LAZ_VER=1.8.0 LAZ_ENV=qemu-arm LAZ_OPT="--os=linux --cpu=arm"
+    - os: linux
+      env: LAZ_VER=1.8.4 LAZ_ENV=qemu-arm LAZ_OPT="--os=linux --cpu=arm"
+   # - os: linux
+   #   env: LAZ_VER=2.0RC1 LAZ_ENV=qemu-arm LAZ_OPT="--os=linux --cpu=arm"
+
+before_install:
+  # Start virtual display server
+  - Xvfb $DISPLAY &
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then
+          sudo apt-get update;
+          sudo apt-get install binutils-2.26;
+          sudo ln -sf /usr/lib/binutils-2.26/bin/* /usr/bin/;
+          sudo ln -sf /usr/lib/binutils-2.26/ldscripts/* /usr/lib/ldscripts/;
+    fi
+  - chmod +x .travis.install.py 
+
+install:
+  # Install prerequisites (fpc/lazarus/wine/qemu)
+  - ./.travis.install.py
+
+script:
+  - lazbuild --add-package-link ./QRCodeGenLib/src/Packages/FPC/QRCodeGenLib4PascalPackage.lpk  # Add QRCodeGenLib4Pascal Package
+  - lazbuild $LAZ_OPT ./QRCodeGenLib/src/Packages/FPC/QRCodeGenLib4PascalPackage.lpk  # Build QRCodeGenLib4Pascal Package
+  - lazbuild $LAZ_OPT ./QRCodeGenLib.Demo/FreePascal.Demo/QrCodeGeneratorDemo.lpi  # Build QRCodeGenLib4Pascal Demo Project
+  - travis_wait 120 $LAZ_ENV ./QRCodeGenLib.Demo/FreePascal.Demo/bin/QrCodeGeneratorDemo # Run QRCodeGenLib4Pascal Demo with timeout of 120 mins
+
+notifications:
+  email:
+    on_success: false
+    on_failure: change
