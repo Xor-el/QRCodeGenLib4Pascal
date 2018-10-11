@@ -11,6 +11,7 @@ uses
   Graphics,
 {$IFDEF DELPHI}
   Imaging.jpeg, // for Delphi JPEG Support
+  Imaging.pngimage, // for Delphi PNG Support
 {$ELSE}
   Interfaces, // Added so that Lazarus/FPC will Initialize the WidgetSet
 {$ENDIF DELPHI}
@@ -355,7 +356,6 @@ type
     /// </remarks>
     function ToJpegImage(AScale, ABorder: Int32): TJPEGImage;
 
-{$IFDEF FPC}
     /// <summary>
     /// Returns a png image depicting this QR Code, with the specified
     /// module scale and border modules. For example, ToBmpImage(scale=10,
@@ -382,8 +382,9 @@ type
     /// <b>The caller is responsible for the lifetime of the returned image
     /// object.</b>
     /// </remarks>
-    function ToPngImage(AScale, ABorder: Int32): TPortableNetworkGraphic;
-{$ENDIF FPC}
+    function ToPngImage(AScale, ABorder: Int32):
+{$IFDEF FPC}TPortableNetworkGraphic{$ELSE}TPngImage{$ENDIF FPC};
+
     /// <summary>
     /// Returns a string of SVG code for an image depicting this QR Code,
     /// with the specified number of border modules. The string always uses
@@ -979,22 +980,19 @@ begin
   end;
 end;
 
-{$IFDEF FPC}
-
-function TQrCode.ToPngImage(AScale, ABorder: Int32): TPortableNetworkGraphic;
+function TQrCode.ToPngImage(AScale, ABorder: Int32):
+{$IFDEF FPC}TPortableNetworkGraphic{$ELSE}TPngImage{$ENDIF FPC};
 var
   LBitmap: TBitmap;
 begin
   LBitmap := ToBmpImage(AScale, ABorder);
-  Result := TPortableNetworkGraphic.Create;
+  Result := {$IFDEF FPC}TPortableNetworkGraphic{$ELSE}TPngImage{$ENDIF FPC}.Create;
   try
     Result.Assign(LBitmap);
   finally
     LBitmap.Free;
   end;
 end;
-
-{$ENDIF FPC}
 
 function TQrCode.ToSvgString(ABorder: Int32): String;
 var

@@ -13,6 +13,7 @@ uses
   Graphics,
 {$IFDEF DELPHI}
   Imaging.jpeg, // for Delphi JPEG Support
+  Imaging.pngimage, // for Delphi PNG Support
 {$ENDIF DELPHI}
   QlpIQrCode,
   QlpQrCode,
@@ -271,9 +272,7 @@ var
   LFilePath: String;
   LBitmap: TBitmap;
   LJpeg: TJPEGImage;
-{$IFDEF FPC}
-  LPng: TPortableNetworkGraphic;
-{$ENDIF FPC}
+  LPng: {$IFDEF FPC}TPortableNetworkGraphic{$ELSE}TPngImage{$ENDIF FPC};
 begin
   LFilePath := ExtractFilePath(ParamStr(0));
   LFilePath := IncludeTrailingPathDelimiter(LFilePath);
@@ -292,17 +291,13 @@ begin
   LBitmap := AQrCode.ToBmpImage(AScale, ABorder);
   // save jpeg
   LJpeg := AQrCode.ToJpegImage(AScale, ABorder);
-{$IFDEF FPC}
   // save png
   LPng := AQrCode.ToPngImage(AScale, ABorder);
-{$ENDIF FPC}
   try
     try
       LBitmap.SaveToFile(LFilePath + '.bmp');
       LJpeg.SaveToFile(LFilePath + '.jpg');
-{$IFDEF FPC}
       LPng.SaveToFile(LFilePath + '.png');
-{$ENDIF FPC}
       AQrCode.ToSvgFile(ABorder, LFilePath + '.svg');
     except
       raise;

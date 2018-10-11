@@ -8,7 +8,6 @@ uses
   SysUtils;
 
 type
-
   EQRCodeGenLibException = class(Exception);
   EInvalidOperationQRCodeGenLibException = class(EQRCodeGenLibException);
   EIndexOutOfRangeQRCodeGenLibException = class(EQRCodeGenLibException);

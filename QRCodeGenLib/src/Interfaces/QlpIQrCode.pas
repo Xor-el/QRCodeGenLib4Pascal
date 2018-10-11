@@ -8,6 +8,7 @@ uses
   Graphics,
 {$IFDEF DELPHI}
   Imaging.jpeg, // for Delphi JPEG Support
+  Imaging.pngimage, // for Delphi PNG Support
 {$ENDIF DELPHI}
   QlpQRCodeGenLibTypes;
 
@@ -107,7 +108,6 @@ type
     /// </remarks>
     function ToJpegImage(AScale, ABorder: Int32): TJPEGImage;
 
-{$IFDEF FPC}
     /// <summary>
     /// Returns a png image depicting this QR Code, with the specified
     /// module scale and border modules. For example, ToBmpImage(scale=10,
@@ -134,8 +134,9 @@ type
     /// <b>The caller is responsible for the lifetime of the returned image
     /// object.</b>
     /// </remarks>
-    function ToPngImage(AScale, ABorder: Int32): TPortableNetworkGraphic;
-{$ENDIF FPC}
+    function ToPngImage(AScale, ABorder: Int32):
+{$IFDEF FPC}TPortableNetworkGraphic{$ELSE}TPngImage{$ENDIF FPC};
+
     /// <summary>
     /// Returns a string of SVG code for an image depicting this QR Code,
     /// with the specified number of border modules. The string always uses
