@@ -2,7 +2,7 @@
 QRCodeGenLib4Pascal is a Delphi/FPC Port of [Fast-QR-Code-generator](https://github.com/nayuki/Fast-QR-Code-generator/) written by [Nayuki](https://github.com/nayuki). It provides an easy to use interface for generating QR Codes.
 
 **Build Status**
-[![Build Status](https://travis-ci.org/Xor-el/QRCodeGenLib4Pascal.svg?branch=master)](https://travis-ci.org/Xor-el/QRCodeGenLib4Pascal)
+[![Build Status](https://travis-ci.com/Xor-el/QRCodeGenLib4Pascal.svg?branch=master)](https://travis-ci.org/Xor-el/QRCodeGenLib4Pascal)
 
 Features
 --------
