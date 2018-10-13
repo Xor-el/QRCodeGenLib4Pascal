@@ -34,7 +34,7 @@ type
     FPolynomialMultiply: TQRCodeGenLibMatrixByteArray;
 
     constructor Create(ADegree: Int32);
-    // Returns the product of the two given field elements modulo GF(2^8/0x11D). The arguments and result
+    // Returns the product of the two given field elements modulo GF(2^8/$11D). The arguments and result
     // are unsigned 8-bit integers. This could be implemented as a lookup table of 256*256 entries of uint8.
     class function Multiply(Ax, Ay: Int32): Int32; static;
 
@@ -70,7 +70,7 @@ begin
 
   // Compute the product polynomial (x - r^0) * (x - r^1) * (x - r^2) * ... * (x - r^{degree-1}),
   // drop the highest term, and store the rest of the coefficients in order of descending powers.
-  // Note that r = 0x02, which is a generator element of this field GF(2^8/0x11D).
+  // Note that r = $02, which is a generator element of this field GF(2^8/$11D).
   LRoot := 1;
   LIIdx := 0;
   while LIIdx < ADegree do

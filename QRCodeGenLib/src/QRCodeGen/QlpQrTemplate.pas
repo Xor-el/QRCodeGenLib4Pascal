@@ -44,7 +44,7 @@ type
       : Int32; inline;
 
     // Returns an ascending list of positions of alignment patterns for this version number.
-    // Each position is in the range [0,177), and are used on both the x and y axes.
+    // Each position is in the range [0,177], and are used on both the x and y axes.
     // This could be implemented as lookup table of 40 variable-length lists of unsigned bytes.
     function GetAlignmentPatternPositions(): TQRCodeGenLibInt32Array;
 

@@ -19,7 +19,7 @@ resourcestring
 type
 
   /// <summary>
-  /// An appendable sequence of bits (0s and 1s). Mainly used by <see cref="QlpIQrSegment">
+  /// An appendable sequence of bits (0s and 1s). Mainly used by <see cref="QlpQrSegment">
   /// TQrSegment</see>.
   /// </summary>
   TBitBuffer = record
@@ -33,10 +33,10 @@ type
     function GetBitLength: Int32; inline;
 
     /// <summary>
-    /// method to check if <c>BitBuffer</c> record is initialized or not.
+    /// method to check if <c>TBitBuffer</c> record is initialized or not.
     /// </summary>
     /// <exception cref="EInvalidOperationQRCodeGenLibException">
-    /// if <c>BitBuffer</c> is not initialized.
+    /// if <c>TBitBuffer</c> is not initialized.
     /// </exception>
     procedure CheckBitBufferState(); inline;
 
