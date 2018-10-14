@@ -283,7 +283,9 @@ begin
   begin
     if not ForceDirectories(LFilePath) then
     begin
-      Exit; // break out since we cannot create our "Assets" directory.
+      // break out since we cannot create our "Assets" directory.
+      WriteLn(Format('Error creating our "%s" directory.', [LFilePath]));
+      Exit; 
     end;
   end;
   LFilePath := LFilePath + AFileName;
