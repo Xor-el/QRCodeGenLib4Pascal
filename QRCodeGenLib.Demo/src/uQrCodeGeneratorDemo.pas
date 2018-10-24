@@ -307,9 +307,7 @@ begin
   finally
     LBitmap.Free;
     LJpeg.Free;
-{$IFDEF FPC}
     LPng.Free;
-{$ENDIF FPC}
   end;
 end;
 
