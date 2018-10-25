@@ -628,10 +628,13 @@ begin
 end;
 
 class function TQrCode.GetNumDataCodeWords(AVersion: Int32; AEcl: TEcc): Int32;
+var
+  LEclInt: Int32;
 begin
+  LEclInt := AEcl.ToInt32;
   Result := (TBits.Asr32(TQrTemplate.GetNumRawDataModules(AVersion), 3)) -
-    (ECC_CODEWORDS_PER_BLOCK[AEcl.ToInt32][AVersion] *
-    NUM_ERROR_CORRECTION_BLOCKS[AEcl.ToInt32][AVersion]);
+    (ECC_CODEWORDS_PER_BLOCK[LEclInt][AVersion] * NUM_ERROR_CORRECTION_BLOCKS
+    [LEclInt][AVersion]);
 end;
 
 function TQrCode.GetPenaltyScore: Int32;
