@@ -572,9 +572,6 @@ end;
 
 class function TQrCode.TColorToHTMLColorHex(const AColor: TColor): String;
 begin
-  // Result := IntToHex(GetRValue(ColorToRGB(AColor)), 2) +
-  // IntToHex(GetGValue(ColorToRGB(AColor)), 2) +
-  // IntToHex(GetBValue(ColorToRGB(AColor)), 2);
   Result := Format('%.2x%.2x%.2x', [GetRValue(ColorToRGB(AColor)),
     GetGValue(ColorToRGB(AColor)), GetBValue(ColorToRGB(AColor))]);
 end;
@@ -924,17 +921,50 @@ end;
 {$IFNDEF _FIXINSIGHT_}
 
 function TQrCode.ToBmpImage(AScale, ABorder: Int32): TBitmap;
+{$IFNDEF FPC}
+type
+  TRGBTriple = record
+    B, G, R: Byte;
+  end;
+
+type
+  PRGBTripleArray = ^TRGBTripleArray;
+  TRGBTripleArray = array [0 .. MaxInt div SizeOf(TRGBTriple) - 1]
+    of TRGBTriple;
+{$ENDIF FPC}
 var
   LColumn, LRow: Int32;
   LDoColor: Boolean;
   LBrushColor: TColor;
+  LForegroundColor, LBackgroundColor: TColor;
+  LScanLine: {$IFNDEF FPC} PRGBTripleArray {$ELSE} PByte {$ENDIF FPC};
+{$IFDEF FPC}
+  LBytesPerPixel, LRedOffset, LGreenOffset, LBlueOffset: Byte;
+{$ENDIF FPC}
 begin
   ValidateImageDimensions(AScale, ABorder);
 
   Result := TBitmap.Create;
-
+{$IFNDEF FPC}
+  Result.PixelFormat := pf24bit;
+{$ENDIF FPC}
   Result.SetSize((FSize + (ABorder * 2)) * AScale, (FSize + (ABorder * 2))
     * AScale);
+
+  LForegroundColor := FForegroundColor;
+  LBackgroundColor := FBackgroundColor;
+
+{$IFDEF FPC}
+  LBytesPerPixel := Result.RawImage.Description.BitsPerPixel shr 3;
+  LRedOffset := Result.RawImage.Description.RedShift shr 3;
+  LGreenOffset := Result.RawImage.Description.GreenShift shr 3;
+  LBlueOffset := Result.RawImage.Description.BlueShift shr 3;
+{$IFNDEF ENDIAN_LITTLE}
+  LRedOffset := LBytesPerPixel - 1 - LRedOffset;
+  LGreenOffset := LBytesPerPixel - 1 - LGreenOffset;
+  LBlueOffset := LBytesPerPixel - 1 - LBlueOffset;
+{$ENDIF ENDIAN_LITTLE}
+{$ENDIF FPC}
   try
 {$IFDEF FPC}
     // update locking for speedup. only available in FPC
@@ -942,19 +972,32 @@ begin
 {$ENDIF FPC}
     for LColumn := 0 to System.Pred(Result.Height) do
     begin
+      LScanLine := {$IFDEF FPC} Result.RawImage.GetLineStart(LColumn)
+{$ELSE} Result.ScanLine[LColumn] {$ENDIF FPC};
       for LRow := 0 to System.Pred(Result.Width) do
       begin
         LDoColor := GetModule((LRow div AScale) - ABorder,
           (LColumn div AScale) - ABorder);
         if LDoColor then
         begin
-          LBrushColor := FForegroundColor;
+          LBrushColor := LForegroundColor;
         end
         else
         begin
-          LBrushColor := FBackgroundColor;
+          LBrushColor := LBackgroundColor;
         end;
-        Result.Canvas.Pixels[LRow, LColumn] := LBrushColor;
+        // Slow !!!
+        // Result.Canvas.Pixels[LRow, LColumn] := LBrushColor;
+{$IFDEF FPC}
+        (LScanLine + LBlueOffset)^ := GetBValue(LBrushColor);
+        (LScanLine + LGreenOffset)^ := GetGValue(LBrushColor);
+        (LScanLine + LRedOffset)^ := GetRValue(LBrushColor);
+        System.Inc(LScanLine, LBytesPerPixel);
+{$ELSE}
+        LScanLine^[LRow].B := GetBValue(LBrushColor);
+        LScanLine^[LRow].G := GetGValue(LBrushColor);
+        LScanLine^[LRow].R := GetRValue(LBrushColor);
+{$ENDIF FPC}
       end;
     end;
   finally
