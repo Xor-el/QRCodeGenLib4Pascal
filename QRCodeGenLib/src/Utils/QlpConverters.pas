@@ -18,10 +18,10 @@ type
   public
 
     class function ConvertStringToBytes(const AInput: String;
-      const AEncoding: TEncoding): TQRCodeGenLibByteArray; overload; static;
+      const AEncoding: TEncoding): TQRCodeGenLibByteArray; static;
 
     class function ConvertBytesToString(const AInput: TQRCodeGenLibByteArray;
-      const AEncoding: TEncoding): String; overload; static;
+      const AEncoding: TEncoding): String; static;
   end;
 
 implementation
