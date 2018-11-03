@@ -27,6 +27,14 @@ Manual parameters:
     FreePascal 3.0.0 and Above.
     
     Delphi XE3 and Above.
+    
+**Supported Visual Frameworks**
+ 
+    LCL Framework (Lazarus)
+    
+    VCL Framework (Delphi)
+    
+    FMX (FireMonkey is not yet supported but pull requests are welcome).
 
 **Installing the Library.**
 

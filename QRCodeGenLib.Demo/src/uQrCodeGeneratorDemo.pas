@@ -2,6 +2,11 @@
 
 {$IFNDEF FPC}
 {$DEFINE DELPHI}
+{$IF DECLARED(FireMonkeyVersion)}
+{$DEFINE FMX}
+{$ELSE}
+{$DEFINE VCL}
+{$ENDIF}
 {$ELSE}
 {$MODE DELPHI}
 {$ENDIF FPC}
@@ -10,11 +15,13 @@ interface
 
 uses
   SysUtils,
+{$IF DEFINED(VCL)}
+  Vcl.Graphics,
+  Vcl.Imaging.jpeg, // for VCL JPEG Support
+  Vcl.Imaging.pngimage, // for VCL PNG Support
+{$ELSEIF DEFINED(LCL)}
   Graphics,
-{$IFDEF DELPHI}
-  Imaging.jpeg, // for Delphi JPEG Support
-  Imaging.pngimage, // for Delphi PNG Support
-{$ENDIF DELPHI}
+{$IFEND}
   QlpIQrCode,
   QlpQrCode,
   QlpIQrSegment,

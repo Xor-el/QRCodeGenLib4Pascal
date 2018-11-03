@@ -5,11 +5,13 @@ unit QlpIQrCode;
 interface
 
 uses
+{$IF DEFINED(VCL)}
+  Vcl.Graphics,
+  Vcl.Imaging.jpeg, // for VCL JPEG Support
+  Vcl.Imaging.pngimage, // for VCL PNG Support
+{$ELSEIF DEFINED(LCL)}
   Graphics,
-{$IFDEF DELPHI}
-  Imaging.jpeg, // for Delphi JPEG Support
-  Imaging.pngimage, // for Delphi PNG Support
-{$ENDIF DELPHI}
+{$IFEND}
   QlpQRCodeGenLibTypes;
 
 type

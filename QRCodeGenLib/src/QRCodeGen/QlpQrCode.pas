@@ -8,13 +8,14 @@ uses
   Math,
   Classes,
   SysUtils,
+{$IF DEFINED(VCL)}
+  Vcl.Graphics,
+  Vcl.Imaging.jpeg, // for VCL JPEG Support
+  Vcl.Imaging.pngimage, // for VCL PNG Support
+{$ELSEIF DEFINED(LCL)}
   Graphics,
-{$IFDEF DELPHI}
-  Imaging.jpeg, // for Delphi JPEG Support
-  Imaging.pngimage, // for Delphi PNG Support
-{$ELSE}
-  Interfaces, // Added so that Lazarus/FPC will Initialize the WidgetSet
-{$ENDIF DELPHI}
+  Interfaces, // Added so that the LCL will Initialize the WidgetSet
+{$IFEND}
   QlpIQrCode,
   QlpIQrTemplate,
   QlpQrTemplate,
@@ -187,6 +188,12 @@ type
 
     procedure ValidateImageDimensions(AScale, ABorder: Int32);
 
+{$IFDEF LCL}
+    function ToBmpImageInternalLCL(AScale, ABorder: Int32): TBitmap;
+{$ENDIF LCL}
+{$IFDEF VCL}
+    function ToBmpImageInternalVCL(AScale, ABorder: Int32): TBitmap;
+{$ENDIF VCL}
     // Returns the number of 8-bit data (i.e. not error correction) codewords contained in any
     // QR Code of the given version number and error correction level, with remainder bits discarded.
     // This stateless pure function could be implemented as a (40*4)-cell lookup table.
@@ -299,7 +306,6 @@ type
     property ForegroundColor: TColor read GetForegroundColor
       write SetForegroundColor;
 
-{$IFNDEF _FIXINSIGHT_}
     /// <summary>
     /// Returns a bitmap image depicting this QR Code, with the specified
     /// module scale and border modules. For example, ToBmpImage(scale=10,
@@ -327,7 +333,7 @@ type
     /// object.</b>
     /// </remarks>
     function ToBmpImage(AScale, ABorder: Int32): TBitmap;
-{$ENDIF}
+
     /// <summary>
     /// Returns a jpeg image depicting this QR Code, with the specified
     /// module scale and border modules. For example, ToBmpImage(scale=10,
@@ -921,43 +927,25 @@ begin
   end;
 end;
 
-{$IFNDEF _FIXINSIGHT_}
+{$IFDEF LCL}
 
-function TQrCode.ToBmpImage(AScale, ABorder: Int32): TBitmap;
-{$IFNDEF FPC}
-type
-  TRGBTriple = record
-    B, G, R: Byte;
-  end;
-
-type
-  PRGBTripleArray = ^TRGBTripleArray;
-  TRGBTripleArray = array [0 .. MaxInt div SizeOf(TRGBTriple) - 1]
-    of TRGBTriple;
-{$ENDIF FPC}
+function TQrCode.ToBmpImageInternalLCL(AScale, ABorder: Int32): TBitmap;
 var
   LColumn, LRow: Int32;
   LDoColor: Boolean;
   LBrushColor: TColor;
   LForegroundColor, LBackgroundColor: TColor;
-  LScanLine: {$IFNDEF FPC} PRGBTripleArray {$ELSE} PByte {$ENDIF FPC};
-{$IFDEF FPC}
+  LScanLine: PByte;
   LBytesPerPixel, LRedOffset, LGreenOffset, LBlueOffset: Byte;
-{$ENDIF FPC}
 begin
-  ValidateImageDimensions(AScale, ABorder);
-
   Result := TBitmap.Create;
-{$IFNDEF FPC}
-  Result.PixelFormat := pf24bit;
-{$ENDIF FPC}
+
   Result.SetSize((FSize + (ABorder * 2)) * AScale, (FSize + (ABorder * 2))
     * AScale);
 
   LForegroundColor := FForegroundColor;
   LBackgroundColor := FBackgroundColor;
 
-{$IFDEF FPC}
   LBytesPerPixel := Result.RawImage.Description.BitsPerPixel shr 3;
   LRedOffset := Result.RawImage.Description.RedShift shr 3;
   LGreenOffset := Result.RawImage.Description.GreenShift shr 3;
@@ -967,16 +955,11 @@ begin
   LGreenOffset := LBytesPerPixel - 1 - LGreenOffset;
   LBlueOffset := LBytesPerPixel - 1 - LBlueOffset;
 {$ENDIF ENDIAN_LITTLE}
-{$ENDIF FPC}
   try
-{$IFDEF FPC}
-    // update locking for speedup. only available in FPC
     Result.BeginUpdate(True);
-{$ENDIF FPC}
     for LColumn := 0 to System.Pred(Result.Height) do
     begin
-      LScanLine := {$IFDEF FPC} Result.RawImage.GetLineStart(LColumn)
-{$ELSE} Result.ScanLine[LColumn] {$ENDIF FPC};
+      LScanLine := Result.RawImage.GetLineStart(LColumn);
       for LRow := 0 to System.Pred(Result.Width) do
       begin
         LDoColor := GetModule((LRow div AScale) - ABorder,
@@ -991,26 +974,82 @@ begin
         end;
         // Slow !!!
         // Result.Canvas.Pixels[LRow, LColumn] := LBrushColor;
-{$IFDEF FPC}
         (LScanLine + LBlueOffset)^ := GetBValue(LBrushColor);
         (LScanLine + LGreenOffset)^ := GetGValue(LBrushColor);
         (LScanLine + LRedOffset)^ := GetRValue(LBrushColor);
         System.Inc(LScanLine, LBytesPerPixel);
-{$ELSE}
-        LScanLine^[LRow].B := GetBValue(LBrushColor);
-        LScanLine^[LRow].G := GetGValue(LBrushColor);
-        LScanLine^[LRow].R := GetRValue(LBrushColor);
-{$ENDIF FPC}
       end;
     end;
   finally
-{$IFDEF FPC}
-    // update locking for speedup. only available in FPC
     Result.EndUpdate(false);
-{$ENDIF FPC}
   end;
 end;
-{$ENDIF}
+{$ENDIF LCL}
+{$IFDEF VCL}
+
+function TQrCode.ToBmpImageInternalVCL(AScale, ABorder: Int32): TBitmap;
+type
+  TRGBTriple = record
+    B, G, R: Byte;
+  end;
+
+type
+  PRGBTripleArray = ^TRGBTripleArray;
+  TRGBTripleArray = array [0 .. MaxInt div SizeOf(TRGBTriple) - 1]
+    of TRGBTriple;
+var
+  LColumn, LRow: Int32;
+  LDoColor: Boolean;
+  LBrushColor: TColor;
+  LForegroundColor, LBackgroundColor: TColor;
+  LScanLine: PRGBTripleArray;
+begin
+  Result := TBitmap.Create;
+  Result.PixelFormat := pf24bit;
+
+  Result.SetSize((FSize + (ABorder * 2)) * AScale, (FSize + (ABorder * 2))
+    * AScale);
+
+  LForegroundColor := FForegroundColor;
+  LBackgroundColor := FBackgroundColor;
+
+  for LColumn := 0 to System.Pred(Result.Height) do
+  begin
+    LScanLine := Result.ScanLine[LColumn];
+    for LRow := 0 to System.Pred(Result.Width) do
+    begin
+      LDoColor := GetModule((LRow div AScale) - ABorder,
+        (LColumn div AScale) - ABorder);
+      if LDoColor then
+      begin
+        LBrushColor := LForegroundColor;
+      end
+      else
+      begin
+        LBrushColor := LBackgroundColor;
+      end;
+      // Slow !!!
+      // Result.Canvas.Pixels[LRow, LColumn] := LBrushColor;
+      LScanLine^[LRow].B := GetBValue(LBrushColor);
+      LScanLine^[LRow].G := GetGValue(LBrushColor);
+      LScanLine^[LRow].R := GetRValue(LBrushColor);
+    end;
+
+  end;
+end;
+{$ENDIF VCL}
+
+function TQrCode.ToBmpImage(AScale, ABorder: Int32): TBitmap;
+begin
+  ValidateImageDimensions(AScale, ABorder);
+{$IF DEFINED(LCL)}
+  Result := ToBmpImageInternalLCL(AScale, ABorder);
+{$ELSEIF DEFINED(VCL)}
+  Result := ToBmpImageInternalVCL(AScale, ABorder);
+{$ELSE}
+{$MESSAGE ERROR 'This UI Framework is not supported at the moment.'}
+{$IFEND}
+end;
 
 function TQrCode.ToJpegImage(AScale, ABorder: Int32): TJPEGImage;
 var
