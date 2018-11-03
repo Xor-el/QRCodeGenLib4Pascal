@@ -1084,12 +1084,15 @@ var
   LColumn, LRow: Int32;
   LBorder: Int64;
   LStringList: TStringList;
+  LForegroundColor, LBackgroundColor: String;
 begin
   if (ABorder < 0) then
   begin
     raise EArgumentInvalidQRCodeGenLibException.CreateRes(@SBorderNegative);
   end;
   LBorder := ABorder;
+  LForegroundColor := TColorToHTMLColorHex(FForegroundColor);
+  LBackgroundColor := TColorToHTMLColorHex(FBackgroundColor);
   LStringList := TStringList.Create;
   LStringList.LineBreak := '';
   try
@@ -1103,7 +1106,7 @@ begin
       [FSize + (LBorder * 2), (FSize + LBorder * 2), UNIX_NEW_LINE]));
     LStringList.Add
       (Format('%s<rect width="100%%" height="100%%" fill="#%s"/>%s',
-      [TAB, TColorToHTMLColorHex(FBackgroundColor), UNIX_NEW_LINE]));
+      [TAB, LBackgroundColor, UNIX_NEW_LINE]));
     LStringList.Add(Format('%s<path d="', [TAB]));
 
     for LColumn := 0 to System.Pred(FSize) do
@@ -1123,8 +1126,8 @@ begin
 
     end;
 
-    LStringList.Add(Format('" fill="#%s"/>%s',
-      [TColorToHTMLColorHex(FForegroundColor), UNIX_NEW_LINE]));
+    LStringList.Add(Format('" fill="#%s"/>%s', [LForegroundColor,
+      UNIX_NEW_LINE]));
     LStringList.Add(Format('</svg>%s', [UNIX_NEW_LINE]));
 
     Result := LStringList.Text;
