@@ -9,6 +9,9 @@ uses
   Vcl.Graphics,
   Vcl.Imaging.jpeg, // for VCL JPEG Support
   Vcl.Imaging.pngimage, // for VCL PNG Support
+{$ELSEIF DEFINED(FMX)}
+  FMX.Graphics,
+  System.UITypes,
 {$ELSEIF DEFINED(LCL)}
   Graphics,
 {$IFEND}
@@ -26,13 +29,19 @@ type
     property Mask: Int32 read GetMask;
     function GetModules: TQRCodeGenLibInt32Array;
     property Modules: TQRCodeGenLibInt32Array read GetModules;
-    function GetBackgroundColor: TColor;
-    procedure SetBackgroundColor(const AColor: TColor);
-    property BackgroundColor: TColor read GetBackgroundColor
+    function GetBackgroundColor:
+{$IFNDEF FMX}TColor{$ELSE}TAlphaColor{$ENDIF FMX};
+    procedure SetBackgroundColor(const AColor:
+{$IFNDEF FMX}TColor{$ELSE}TAlphaColor{$ENDIF FMX});
+    property BackgroundColor:
+{$IFNDEF FMX}TColor{$ELSE}TAlphaColor{$ENDIF FMX} read GetBackgroundColor
       write SetBackgroundColor;
-    function GetForegroundColor: TColor;
-    procedure SetForegroundColor(const AColor: TColor);
-    property ForegroundColor: TColor read GetForegroundColor
+    function GetForegroundColor:
+{$IFNDEF FMX}TColor{$ELSE}TAlphaColor{$ENDIF FMX};
+    procedure SetForegroundColor(const AColor:
+{$IFNDEF FMX}TColor{$ELSE}TAlphaColor{$ENDIF FMX});
+    property ForegroundColor:
+    {$IFNDEF FMX}TColor{$ELSE}TAlphaColor{$ENDIF FMX} read GetForegroundColor
       write SetForegroundColor;
 
     /// <summary>
@@ -82,6 +91,7 @@ type
     /// </remarks>
     function ToBmpImage(AScale, ABorder: Int32): TBitmap;
 
+    {$IFNDEF FMX}
     /// <summary>
     /// Returns a jpeg image depicting this QR Code, with the specified
     /// module scale and border modules. For example, ToBmpImage(scale=10,
@@ -138,6 +148,7 @@ type
     /// </remarks>
     function ToPngImage(AScale, ABorder: Int32):
 {$IFDEF FPC}TPortableNetworkGraphic{$ELSE}TPngImage{$ENDIF FPC};
+{$ENDIF FMX}
 
     /// <summary>
     /// Returns a string of SVG code for an image depicting this QR Code,

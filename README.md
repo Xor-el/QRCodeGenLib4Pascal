@@ -34,7 +34,7 @@ Manual parameters:
     
     VCL Framework (Delphi)
     
-    FMX (FireMonkey is not yet supported but pull requests are welcome).
+    FMX (Support is currently experimental, to use enable the define "{.$DEFINE Framework_FMX}" in "QRCodeGenLib.inc").
 
 **Installing the Library.**
 
