@@ -34,7 +34,9 @@ Manual parameters:
     
     VCL Framework (Delphi)
     
-    FMX (FireMonkey is not yet supported but pull requests are welcome).
+    *FMX (Delphi).
+    
+   Experimental FMX support can be found [here](https://github.com/Xor-el/QRCodeGenLib4Pascal/tree/ExperimentalFMXSupport)
 
 **Installing the Library.**
 
