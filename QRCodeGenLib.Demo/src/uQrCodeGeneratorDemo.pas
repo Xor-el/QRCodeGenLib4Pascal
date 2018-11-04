@@ -292,16 +292,19 @@ begin
     end;
   end;
   LFilePath := LFilePath + AFileName;
-  // save bmp
+  // create bmp
   LBitmap := AQrCode.ToBmpImage(AScale, ABorder);
-  // save jpeg
+  // create jpeg
   LJpeg := AQrCode.ToJpegImage(AScale, ABorder);
-  // save png
+  // create png
   LPng := AQrCode.ToPngImage(AScale, ABorder);
   try
     try
+      // save bmp
       LBitmap.SaveToFile(LFilePath + '.bmp');
+      // save jpg
       LJpeg.SaveToFile(LFilePath + '.jpg');
+      // save png
       LPng.SaveToFile(LFilePath + '.png');
       AQrCode.ToSvgFile(ABorder, LFilePath + '.svg');
     except
