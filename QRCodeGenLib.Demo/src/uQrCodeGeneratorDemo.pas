@@ -2,7 +2,6 @@
 
 {$IFNDEF FPC}
 {$DEFINE DELPHI}
-{$DEFINE VCL}
 {$ELSE}
 {$MODE DELPHI}
 {$ENDIF FPC}
@@ -11,13 +10,13 @@ interface
 
 uses
   SysUtils,
-{$IF DEFINED(VCL)}
+{$IFDEF DELPHI}
   Vcl.Graphics,
   Vcl.Imaging.jpeg, // for VCL JPEG Support
   Vcl.Imaging.pngimage, // for VCL PNG Support
-{$ELSEIF DEFINED(LCL)}
+{$ELSE}
   Graphics,
-{$IFEND}
+{$ENDIF DELPHI}
   QlpIQrCode,
   QlpQrCode,
   QlpIQrSegment,
