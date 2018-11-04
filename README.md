@@ -34,7 +34,7 @@ Manual parameters:
     
     VCL Framework (Delphi)
     
-    FMX (Support is currently experimental, to use enable the define "{.$DEFINE Framework_FMX}" in "QRCodeGenLib.inc").
+    FMX (Support is currently experimental, to use, enable the define "{.$DEFINE Framework_FMX}" in "QRCodeGenLib.inc").
 
 **Installing the Library.**
 
