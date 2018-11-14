@@ -142,7 +142,7 @@ type
     /// <summary>
     /// Returns a string of SVG code for an image depicting this QR Code,
     /// with the specified number of border modules. The string always uses
-    /// Unix newlines AnsiChar(#10), regardless of the platform.
+    /// Unix newlines Char(#10), regardless of the platform.
     /// </summary>
     /// <param name="ABorder">
     /// the number of border modules to add, which must be non-negative
@@ -158,7 +158,7 @@ type
     /// <summary>
     /// saves a string of SVG code for an image depicting this QR Code, with
     /// the specified number of border modules as an svg file. The string
-    /// always uses Unix newlines AnsiChar(#10), regardless of the platform.
+    /// always uses Unix newlines Char(#10), regardless of the platform.
     /// </summary>
     /// <param name="ABorder">
     /// the number of border modules to add, which must be non-negative
