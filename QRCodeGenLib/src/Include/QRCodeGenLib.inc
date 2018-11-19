@@ -10,7 +10,6 @@
 
 (* &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& *)
 
-
  {$DEFINE DELPHI}
 
 (* &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& *)
@@ -125,6 +124,7 @@
 {$WARN COMBINING_SIGNED_UNSIGNED64 OFF}
 {$ENDIF}
 
+{.$DEFINE Framework_FMX} // enable to force FMX mode
 {$IFDEF Framework_FMX}
 {$DEFINE FMX}
 {$ELSE}

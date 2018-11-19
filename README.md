@@ -10,7 +10,7 @@ Features
 Core features:
 
 * Supports encoding all 40 versions (sizes) and all 4 error correction levels, as per the QR Code Model 2 standard
-* Output formats: Raw modules/pixels of the QR symbol, SVG XML string/file, `ImageObject`(`bmp`, `jpg` and `png`).
+* Output formats: Raw modules/pixels of the QR symbol, SVG XML string/file, `ImageObject`(`bmp` (`jpg` and `png`) for `VCL` and `LCL` only).
 * Encodes numeric and special-alphanumeric text in less space than general text
 * Ability to change the backgound and foreground colors of the generated QRCode.
 * Open source code under the permissive MIT License
@@ -34,9 +34,7 @@ Manual parameters:
     
     VCL Framework (Delphi)
     
-    *FMX (Delphi).
-    
-   Experimental FMX support can be found [here](https://github.com/Xor-el/QRCodeGenLib4Pascal/tree/ExperimentalFMXSupport)
+    FMX (Support is currently experimental, to use, enable the define "{.$DEFINE Framework_FMX}" in "QRCodeGenLib.inc").
 
 **Installing the Library.**
 
