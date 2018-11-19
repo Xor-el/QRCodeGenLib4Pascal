@@ -34,6 +34,7 @@ uses
   QlpGuard,
   QlpBits,
   QlpConverters,
+  QlpArrayUtils,
   QlpQRCodeGenLibTypes;
 
 resourcestring
@@ -42,7 +43,8 @@ resourcestring
   SMaskOutOfRange = 'Mask out of range';
   SInvalidState = 'Invalid state encountered.';
   SInvalidValue = 'Invalid value';
-  SDataTooLong = 'Data too long';
+  SSegmentTooLong = 'Segment too long';
+  SSegmentSizeError = 'Data length = %d bits, Max capacity = %d bits';
   SFileNameEmpty = 'FileName cannot be empty';
   SBorderNegative = 'Border must be non-negative';
   SEncodingInstanceNil = 'Encoding instance cannot be nil';
@@ -142,6 +144,7 @@ type
     /// The error correction level used in this QR Code
     /// </summary>
     FErrorCorrectionLevel: TEcc;
+    // Private grid of modules/pixels:
     FModules: TQRCodeGenLibInt32Array;
     FBackgroundColor, FForegroundColor:
 {$IFNDEF FMX}TColor{$ELSE}TAlphaColor{$ENDIF FMX};
@@ -212,6 +215,17 @@ type
     // This stateless pure function could be implemented as a (40*4)-cell lookup table.
     class function GetNumDataCodeWords(AVersion: Int32; AEcl: TEcc)
       : Int32; inline;
+
+    // Inserts the given value to the front of the given array, which shifts over the
+    // existing values and deletes the last value. A helper function for getPenaltyScore().
+    class procedure AddRunToHistory(ARun: Int32;
+      const AHistory: TQRCodeGenLibInt32Array); static; inline;
+
+    // Tests whether the given run history has the pattern of ratio 1:1:3:1:1 in the middle, and
+    // surrounded by at least 4 on either or both ends. A helper function for getPenaltyScore().
+    // Must only be called immediately after a run of white modules has ended.
+    class function HasFinderLikePattern(const ARunHistory
+      : TQRCodeGenLibInt32Array): Boolean; static; inline;
 
 {$IFNDEF FMX}
     class function GetRValue(Argb: UInt32): Byte; static; inline;
@@ -482,7 +496,7 @@ type
     /// <returns>
     /// a QR Code representing the text
     /// </returns>
-    /// <exception cref="QlpQRCodeGenLibTypes|EArgumentOutOfRangeQRCodeGenLibException">
+    /// <exception cref="QlpQRCodeGenLibTypes|EDataTooLongQRCodeGenLibException">
     /// if the text fails to fit in the largest version QR Code at the ECL,
     /// which means it is too long
     /// </exception>
@@ -510,7 +524,7 @@ type
     /// <returns>
     /// a QR Code representing the data
     /// </returns>
-    /// <exception cref="QlpQRCodeGenLibTypes|EArgumentOutOfRangeQRCodeGenLibException">
+    /// <exception cref="QlpQRCodeGenLibTypes|EDataTooLongQRCodeGenLibException">
     /// if the data fails to fit in the largest version QR Code at the ECL,
     /// which means it is too long
     /// </exception>
@@ -578,7 +592,7 @@ type
     /// <returns>
     /// a QR Code representing the segments
     /// </returns>
-    /// <exception cref="QlpQRCodeGenLibTypes|EArgumentOutOfRangeQRCodeGenLibException">
+    /// <exception cref="QlpQRCodeGenLibTypes|EDataTooLongQRCodeGenLibException">
     /// if 1 &#x2264; minVersion &#x2264; maxVersion &#x2264; 40
     /// or &#x2212;1 &#x2264; mask &#x2264; 7 is violated; or if the segments fail to
     /// fit in the maxVersion QR Code at the ECL, which means they are too long
@@ -689,14 +703,35 @@ begin
     [LEclInt][AVersion]);
 end;
 
+class function TQrCode.HasFinderLikePattern(const ARunHistory
+  : TQRCodeGenLibInt32Array): Boolean;
+var
+  Ln: Int32;
+begin
+  Ln := ARunHistory[1];
+  Result := (Ln > 0) and (ARunHistory[2] = Ln) and (ARunHistory[4] = Ln) and
+    (ARunHistory[5] = Ln) and (ARunHistory[3] = Ln * 3) and
+    (Max(ARunHistory[0], ARunHistory[6]) >= Ln * 4);
+end;
+
+class procedure TQrCode.AddRunToHistory(ARun: Int32;
+  const AHistory: TQRCodeGenLibInt32Array);
+begin
+  System.Move(AHistory[0], AHistory[1], (System.Length(AHistory) - 1) *
+    System.SizeOf(Int32));
+  AHistory[0] := ARun;
+end;
+
 function TQrCode.GetPenaltyScore: Int32;
 var
-  LEnd, LBlack, LIndex, LDownIndex, LBits, LDownBits, LRunColor, LRunLen, Lx,
-    LBit, LTotal, Lk, Ly: Int32;
+  LEnd, LBlack, LIndex, LDownIndex, LCurRow, LNextRow, LColor, LRunX, LRunY, Lx,
+    Lc, LTotal, Lk, Ly: Int32;
+  LRunHistory: TQRCodeGenLibInt32Array;
 begin
   Result := 0;
   LBlack := 0;
   LIndex := 0;
+  System.SetLength(LRunHistory, 7);
   LDownIndex := FSize;
   LEnd := FSize * FSize;
 
@@ -704,59 +739,71 @@ begin
   while LIndex < LEnd do
   begin
 
-    LBits := 0;
-    LDownBits := 0;
-    LRunColor := 0;
-    LRunLen := 0;
+    TArrayUtils.Fill(LRunHistory, 0);
+    LColor := 0;
+    LRunX := 0;
+    LCurRow := 0;
+    LNextRow := 0;
 
     Lx := 0;
     while Lx < FSize do
     begin
 
       // Adjacent modules having same color
-      LBit := TQrCodeCommons.GetBit(FModules[TBits.Asr32(LIndex, 5)], LIndex);
-      if (LBit <> LRunColor) then
+      Lc := TQrCodeCommons.GetBit(FModules[TBits.Asr32(LIndex, 5)], LIndex);
+
+      if (Lc = LColor) then
       begin
-        LRunColor := LBit;
-        LRunLen := 1;
-      end
-      else
-      begin
-        System.Inc(LRunLen);
-        if (LRunLen = 5) then
+        System.Inc(LRunX);
+        if (LRunX = 5) then
         begin
           Result := Result + PENALTY_N1;
         end
-        else if (LRunLen > 5) then
+        else if (LRunX > 5) then
         begin
           System.Inc(Result);
         end;
+      end
+      else
+      begin
+        AddRunToHistory(LRunX, LRunHistory);
+        if ((LColor = 0) and (HasFinderLikePattern(LRunHistory))) then
+        begin
+          Result := Result + PENALTY_N3;
+        end;
+        LColor := Lc;
+        LRunX := 1;
       end;
 
-      LBlack := LBlack + LBit;
-      LBits := ((LBits and 1023) shl 1) or LBit;
+      LBlack := LBlack + Lc;
       if (LDownIndex < LEnd) then
       begin
-        LDownBits := ((LDownBits and 1) shl 1) or
+
+        LCurRow := ((LCurRow shl 1) or Lc) and 3;
+        LNextRow := ((LNextRow shl 1) or
           TQrCodeCommons.GetBit(FModules[TBits.Asr32(LDownIndex, 5)],
-          LDownIndex);
+          LDownIndex)) and 3;
         // 2*2 blocks of modules having same color
-        if ((Lx >= 1) and ((LDownBits = 0) or (LDownBits = 3)) and
-          (LDownBits = (LBits and 3))) then
+        if ((Lx >= 1) and ((LCurRow = 0) or (LCurRow = 3)) and
+          (LCurRow = LNextRow)) then
         begin
           Result := Result + PENALTY_N2;
         end;
       end;
 
-      // Finder-like pattern
-      if ((Lx >= 10) and ((LBits = 93) or (LBits = 1488))) then
-      begin
-        Result := Result + PENALTY_N3;
-      end;
-
       System.Inc(Lx);
       System.Inc(LIndex);
       System.Inc(LDownIndex);
+    end;
+
+    AddRunToHistory(LRunX, LRunHistory);
+    if (LColor = 1) then
+    begin
+      AddRunToHistory(0, LRunHistory); // Dummy run of white
+    end;
+    if (HasFinderLikePattern(LRunHistory)) then
+    begin
+      Result := Result + PENALTY_N3;
     end;
 
   end;
@@ -765,41 +812,56 @@ begin
   Lx := 0;
   while Lx < FSize do
   begin
-    LBits := 0;
-    LRunColor := 0;
-    LRunLen := 0;
+    TArrayUtils.Fill(LRunHistory, 0);
+    LColor := 0;
+    LRunY := 0;
     Ly := 0;
     LIndex := Lx;
     while Ly < FSize do
     begin
       // Adjacent modules having same color
-      LBit := TQrCodeCommons.GetBit(FModules[TBits.Asr32(LIndex, 5)], LIndex);
-      if (LBit <> LRunColor) then
+      Lc := TQrCodeCommons.GetBit(FModules[TBits.Asr32(LIndex, 5)], LIndex);
+
+      if (Lc = LColor) then
       begin
-        LRunColor := LBit;
-        LRunLen := 1;
-      end
-      else
-      begin
-        System.Inc(LRunLen);
-        if (LRunLen = 5) then
+        System.Inc(LRunY);
+        if (LRunY = 5) then
         begin
           Result := Result + PENALTY_N1;
         end
-        else if (LRunLen > 5) then
+        else if (LRunY > 5) then
         begin
           System.Inc(Result);
         end;
+      end
+      else
+      begin
+        AddRunToHistory(LRunY, LRunHistory);
+        if ((LColor = 0) and (HasFinderLikePattern(LRunHistory))) then
+        begin
+          Result := Result + PENALTY_N3;
+        end;
+        LColor := Lc;
+        LRunY := 1;
       end;
 
-      // Finder-like pattern
-      LBits := ((LBits and 1023) shl 1) or LBit;
-      if ((Ly >= 10) and ((LBits = 93) or (LBits = 1488))) then
-      begin
-        Result := Result + PENALTY_N3;
-      end;
+      // // Finder-like pattern
+      // LCurRow := ((LCurRow and 1023) shl 1) or Lc;
+      // if ((Ly >= 10) and ((LCurRow = 93) or (LCurRow = 1488))) then
+      // begin
+      // Result := Result + PENALTY_N3;
+      // end;
       System.Inc(Ly);
       System.Inc(LIndex, FSize);
+    end;
+    AddRunToHistory(LRunY, LRunHistory);
+    if (LColor = 1) then
+    begin
+      AddRunToHistory(0, LRunHistory); // Dummy run of white
+    end;
+    if (HasFinderLikePattern(LRunHistory)) then
+    begin
+      Result := Result + PENALTY_N3;
     end;
     System.Inc(Lx);
   end;
@@ -1120,7 +1182,7 @@ begin
             LBrushColor := LBackgroundColor;
           end;
           // Slow !!!
-         // LBitData.SetPixel(LRow, LColumn, LBrushColor);
+          // LBitData.SetPixel(LRow, LColumn, LBrushColor);
           LScanLine^[LRow] := LBrushColor;
         end;
 
@@ -1336,7 +1398,7 @@ begin
   end;
 
   // Draw second copy
-  for LIdx := 0 to 7 do
+  for LIdx := 0 to System.Pred(8) do
   begin
     SetModule(FSize - 1 - LIdx, 8, TQrCodeCommons.GetBit(LBits, LIdx));
   end;
@@ -1388,7 +1450,12 @@ begin
     if (LVersion >= AMaxVersion) then
     // All versions in the range could not fit the given data
     begin
-      raise EArgumentOutOfRangeQRCodeGenLibException.CreateRes(@SDataTooLong);
+      if (LDataUsedBits <> -1) then
+      begin
+        raise EDataTooLongQRCodeGenLibException.CreateResFmt(@SSegmentSizeError,
+          [LDataUsedBits, LDataCapacityBits]);
+      end;
+      raise EDataTooLongQRCodeGenLibException.CreateRes(@SSegmentTooLong);
     end;
     System.Inc(LVersion);
   end;

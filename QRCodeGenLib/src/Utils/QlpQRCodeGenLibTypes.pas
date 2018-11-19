@@ -9,6 +9,7 @@ uses
 
 type
   EQRCodeGenLibException = class(Exception);
+  EDataTooLongQRCodeGenLibException = class(EQRCodeGenLibException);
   EInvalidOperationQRCodeGenLibException = class(EQRCodeGenLibException);
   EIndexOutOfRangeQRCodeGenLibException = class(EQRCodeGenLibException);
   EArgumentQRCodeGenLibException = class(EQRCodeGenLibException);

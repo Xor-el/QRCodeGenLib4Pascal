@@ -32,7 +32,7 @@ type
   var
     FVersion, FSize: Int32;
 
-    // "FIsFunction" is Discarded when constructor finishes
+    // "FIsFunction" Indicates function modules that are not subjected to masking. Discarded when constructor finishes.
     FTemplate, FDataOutputBitIndexes, FIsFunction: TQRCodeGenLibInt32Array;
     FMasks: TQRCodeGenLibMatrixInt32Array;
 
@@ -220,7 +220,7 @@ begin
   end;
 
   // Draw second copy
-  for LIdx := 0 to 7 do
+  for LIdx := 0 to System.Pred(8) do
   begin
     DarkenFunctionModule(FSize - 1 - LIdx, 8, 0);
   end;

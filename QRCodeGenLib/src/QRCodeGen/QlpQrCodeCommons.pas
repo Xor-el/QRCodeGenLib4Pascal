@@ -31,7 +31,7 @@ type
     /// </summary>
     MAX_VERSION = Int32(40);
 
-    // Returns 0 or 1 based on the Ai'th bit of Ax.
+    // Returns 0 or 1 based on the (i mod 32)'th bit of x.
     class function GetBit(Ax, Ai: Int32): Int32; inline;
 
   end;

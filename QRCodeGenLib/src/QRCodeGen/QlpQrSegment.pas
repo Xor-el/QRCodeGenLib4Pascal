@@ -77,6 +77,7 @@ type
     FMode: TQrSegmentMode;
     // FBitLength Requires 0 <= FBitLength <= System.Length(FData) * 32.
     FNumChars, FBitLength: Int32;
+    // The data bits of this segment. Not null.
     FData: TQRCodeGenLibInt32Array;
 
     /// <summary>
