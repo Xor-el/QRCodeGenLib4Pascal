@@ -217,12 +217,12 @@ type
       : Int32; inline;
 
     // Inserts the given value to the front of the given array, which shifts over the
-    // existing values and deletes the last value. A helper function for getPenaltyScore().
+    // existing values and deletes the last value. A helper function for GetPenaltyScore().
     class procedure AddRunToHistory(ARun: Int32;
       const AHistory: TQRCodeGenLibInt32Array); static; inline;
 
     // Tests whether the given run history has the pattern of ratio 1:1:3:1:1 in the middle, and
-    // surrounded by at least 4 on either or both ends. A helper function for getPenaltyScore().
+    // surrounded by at least 4 on either or both ends. A helper function for GetPenaltyScore().
     // Must only be called immediately after a run of white modules has ended.
     class function HasFinderLikePattern(const ARunHistory
       : TQRCodeGenLibInt32Array): Boolean; static; inline;
@@ -845,12 +845,6 @@ begin
         LRunY := 1;
       end;
 
-      // // Finder-like pattern
-      // LCurRow := ((LCurRow and 1023) shl 1) or Lc;
-      // if ((Ly >= 10) and ((LCurRow = 93) or (LCurRow = 1488))) then
-      // begin
-      // Result := Result + PENALTY_N3;
-      // end;
       System.Inc(Ly);
       System.Inc(LIndex, FSize);
     end;
