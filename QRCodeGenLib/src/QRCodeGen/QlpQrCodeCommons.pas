@@ -42,7 +42,7 @@ implementation
 
 class function TQrCodeCommons.GetBit(Ax, Ai: Int32): Int32;
 begin
-  result := (TBits.Asr32(Ax, Ai)) and 1;
+  result := (TBits.Asr32(Ax, Byte(Ai))) and 1;
 end;
 
 end.

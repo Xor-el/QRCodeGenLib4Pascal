@@ -422,8 +422,8 @@ begin
   System.SetLength(LBits, (System.Length(AData) + 3) shr 2);
   for LIdx := System.Low(AData) to System.High(AData) do
   begin
-    LBits[TBits.Asr32(LIdx, 2)] := LBits[TBits.Asr32(LIdx, 2)] or
-      Int64((AData[LIdx] and $FF) shl ((not LIdx) shl 3));
+    LBits[TBits.Asr32(LIdx, 2)] := Int32(LBits[TBits.Asr32(LIdx, 2)] or
+          Int64((AData[LIdx] and $FF) shl ((not LIdx) shl 3)));
   end;
   result := TQrSegment.Create(TQrSegmentMode.qsmByte, System.Length(AData),
     LBits, System.Length(AData) * 8);

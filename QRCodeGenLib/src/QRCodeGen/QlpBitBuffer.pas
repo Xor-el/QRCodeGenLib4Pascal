@@ -244,7 +244,7 @@ begin
   for LIdx := 0 to System.Pred(System.Length(Result)) do
   begin
     Result[LIdx] := Byte(TBits.Asr32(FData[TBits.Asr32(LIdx, 2)],
-      ((not LIdx) shl 3)));
+      Byte((not LIdx) shl 3)));
   end;
 end;
 
