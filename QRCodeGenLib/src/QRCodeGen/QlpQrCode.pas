@@ -14,7 +14,6 @@ uses
   Vcl.Imaging.pngimage, // for VCL PNG Support
 {$ELSEIF DEFINED(FMX)}
   FMX.Graphics,
-  FMX.Utils,
   UIConsts,
   UITypes,
 {$ELSEIF DEFINED(LCL)}
@@ -1148,7 +1147,6 @@ var
   LDoColor: Boolean;
   LBrushColor: TColor;
   LForegroundColor, LBackgroundColor: TColor;
-  LScanLine: PAlphaColorArray;
   LBitData: TBitmapData;
 begin
   Result := TBitmap.Create;
@@ -1162,7 +1160,6 @@ begin
     try
       for LColumn := 0 to System.Pred(Result.Height) do
       begin
-        LScanLine := LBitData.GetScanLine(LColumn);
         for LRow := 0 to System.Pred(Result.Width) do
         begin
           LDoColor := GetModule((LRow div AScale) - ABorder,
@@ -1175,9 +1172,7 @@ begin
           begin
             LBrushColor := LBackgroundColor;
           end;
-          // Slow !!!
-          // LBitData.SetPixel(LRow, LColumn, LBrushColor);
-          LScanLine^[LRow] := LBrushColor;
+          LBitData.SetPixel(LRow, LColumn, LBrushColor);
         end;
 
       end;

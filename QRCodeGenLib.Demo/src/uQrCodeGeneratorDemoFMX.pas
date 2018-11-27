@@ -4,6 +4,7 @@ interface
 
 uses
   SysUtils,
+  IOUtils,
   UITypes,
   FMX.Dialogs,
   FMX.Graphics,
@@ -269,10 +270,8 @@ var
   LFilePath: String;
   LBitmap: TBitmap;
 begin
-  LFilePath := ExtractFilePath(ParamStr(0));
-  LFilePath := IncludeTrailingPathDelimiter(LFilePath);
-  LFilePath := IncludeTrailingPathDelimiter(LFilePath) + FolderName;
-  LFilePath := IncludeTrailingPathDelimiter(LFilePath);
+
+  LFilePath := TPath.Combine(TPath.GetSharedDocumentsPath, FolderName);
 
   if not DirectoryExists(LFilePath) then
   begin
@@ -283,13 +282,17 @@ begin
       Exit;
     end;
   end;
-  LFilePath := LFilePath + AFileName;
+
+  LFilePath := TPath.Combine(LFilePath, AFileName);
   // create bmp
   LBitmap := AQrCode.ToBmpImage(AScale, ABorder);
   try
     try
+{$IF DEFINED(MSWINDOWS) OR DEFINED(MACOS)}
+      // bmp is only supported on Windows and MACOS
       // save bmp
       LBitmap.SaveToFile(LFilePath + '.bmp');
+{$ENDIF}
       // save jpeg
       LBitmap.SaveToFile(LFilePath + '.jpg');
       // save png
