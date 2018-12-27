@@ -1015,12 +1015,12 @@ begin
   if (ABlack = 0) then
   begin
     FModules[TBits.Asr32(LIdx, 5)] := FModules[TBits.Asr32(LIdx, 5)] and
-      (not(1 shl LIdx));
+      (not(TBits.LeftShift32(1, LIdx)));
   end
   else if (ABlack = 1) then
   begin
     FModules[TBits.Asr32(LIdx, 5)] := FModules[TBits.Asr32(LIdx, 5)] or
-      (1 shl LIdx);
+      (TBits.LeftShift32(1, LIdx));
   end
   else
   begin
@@ -1349,7 +1349,8 @@ begin
     LBit := TQrCodeCommons.GetBit(AAllCodewords[TBits.Asr32(LIIdx, 3)],
       (not LIIdx) and 7);
     FModules[TBits.Asr32(LJIdx, 5)] := FModules[TBits.Asr32(LJIdx, 5)] or
-      (LBit shl LJIdx);
+      (TBits.LeftShift32(LBit, LJIdx));
+
   end;
 end;
 

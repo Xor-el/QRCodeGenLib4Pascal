@@ -77,9 +77,13 @@ end;
 
 class procedure TArrayUtils.Fill(const ABuffer: TQRCodeGenLibInt32Array;
   AFiller: Int32);
+var
+  LIdx: Int32;
 begin
-  System.FillChar(ABuffer[0], System.Length(ABuffer) *
-    System.SizeOf(Int32), AFiller);
+  for LIdx := System.Low(ABuffer) to System.High(ABuffer) do
+  begin
+    ABuffer[LIdx] := AFiller;
+  end;
 end;
 
 class procedure TArrayUtils.Fill(const ABuffer: TQRCodeGenLibByteArray;

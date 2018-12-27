@@ -134,7 +134,7 @@ begin
   LGolden2 := '......';
   LQrCode := TQrCode.EncodeText(LGolden0 + LGolden1 + LGolden2,
     TQrCode.TEcc.eccLow, LEncoding);
-  WriteQrCodeToFile(LQrCode, 8, 5, 'phi-monolithic-QR.png');
+  WriteQrCodeToFile(LQrCode, 8, 5, 'phi-monolithic-QR');
 
   LSegs := TQRCodeGenLibGenericArray<IQrSegment>.Create
     (TQrSegment.MakeBytes(TConverters.ConvertStringToBytes(LGolden0, LEncoding)

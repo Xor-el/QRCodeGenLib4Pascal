@@ -107,7 +107,7 @@ end;
 
 class function TBitBuffer.Create(): TBitBuffer;
 begin
-  Result := Default(TBitBuffer);
+  Result := Default (TBitBuffer);
   System.SetLength(Result.FData, 64);
   Result.FBitLength := 0;
   Result.FBitBufferInitialized := True;
@@ -150,11 +150,12 @@ begin
     System.Assert((FBitLength and $1F) = 0);
 {$ENDIF DEBUG}
     ALength := ALength - LRemain;
-    AValue := AValue and ((1 shl ALength) - 1);
+    AValue := AValue and ((TBits.LeftShift32(1, ALength)) - 1);
     LRemain := 32;
   end;
   FData[TBits.Asr32(FBitLength, 5)] := FData[TBits.Asr32(FBitLength, 5)] or
-    (AValue shl (LRemain - ALength));
+    (TBits.LeftShift32(AValue, LRemain - ALength));
+
   FBitLength := FBitLength + ALength;
 end;
 
@@ -174,7 +175,8 @@ begin
   end;
   LWholeWords := ALength shr 5;
   LTailBits := ALength and 31;
-  if ((LTailBits > 0) and ((AValues[LWholeWords] shl LTailBits) <> 0)) then
+  if ((LTailBits > 0) and (TBits.LeftShift32(AValues[LWholeWords], LTailBits)
+    <> 0)) then
   begin
     raise EArgumentInvalidQRCodeGenLibException.CreateRes(@SLastWordError);
   end;
@@ -205,7 +207,8 @@ begin
       FData[TBits.Asr32(FBitLength, 5)] := FData[TBits.Asr32(FBitLength, 5)] or
         (LWord shr LShift);
       FBitLength := FBitLength + 32;
-      FData[TBits.Asr32(FBitLength, 5)] := LWord shl (32 - LShift);
+      FData[TBits.Asr32(FBitLength, 5)] :=
+        TBits.LeftShift32(LWord, (32 - LShift));
     end;
     if (LTailBits > 0) then
     begin

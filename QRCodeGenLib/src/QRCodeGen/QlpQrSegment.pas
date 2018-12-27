@@ -302,7 +302,7 @@ begin
   begin
     TGuard.RequireNotNull(LSegment, SSegmentInstanceNil);
     LCCBits := LSegment.Mode.NumCharCountBits(AVersion);
-    if (LSegment.NumChars >= (1 shl LCCBits)) then
+    if (LSegment.NumChars >= (TBits.LeftShift32(1, LCCBits))) then
     begin
       result := -1; // The segment's length doesn't fit the field's bit width
       Exit;
@@ -423,10 +423,11 @@ begin
   for LIdx := System.Low(AData) to System.High(AData) do
   begin
     LBits[TBits.Asr32(LIdx, 2)] := Int32(LBits[TBits.Asr32(LIdx, 2)] or
-          Int64((AData[LIdx] and $FF) shl ((not LIdx) shl 3)));
+      TBits.NegativeLeftShift32(AData[LIdx] and $FF, (not LIdx) shl 3));
   end;
   result := TQrSegment.Create(TQrSegmentMode.qsmByte, System.Length(AData),
     LBits, System.Length(AData) * 8);
+
 end;
 
 class function TQrSegment.MakeEci(const AAssignValue: Int32): IQrSegment;

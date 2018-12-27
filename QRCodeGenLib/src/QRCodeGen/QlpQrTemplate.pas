@@ -107,6 +107,7 @@ begin
 
   DrawFunctionPatterns(); // Reads and writes fields
   FMasks := GenerateMasks(); // Reads fields, returns array
+
   FDataOutputBitIndexes := GenerateZigZagScan(); // Reads fields, returns array
   FIsFunction := Nil;
 end;
@@ -169,9 +170,9 @@ begin
 {$ENDIF DEBUG}
   LIdx := (Ay * FSize) + Ax;
   FTemplate[TBits.Asr32(LIdx, 5)] := FTemplate[TBits.Asr32(LIdx, 5)] or
-    (AEnable shl LIdx);
+    (TBits.LeftShift32(AEnable, LIdx));
   FIsFunction[TBits.Asr32(LIdx, 5)] := FIsFunction[TBits.Asr32(LIdx, 5)] or
-    (1 shl LIdx);
+    (TBits.LeftShift32(1, LIdx));
 end;
 
 class destructor TQrTemplate.DestroyQrTemplate;
@@ -399,7 +400,8 @@ begin
         end;
 
         LMaskModules[TBits.Asr32(LIdx, 5)] := LMaskModules[TBits.Asr32(LIdx, 5)
-          ] or (LBit shl LIdx);
+          ] or (TBits.LeftShift32(LBit, LIdx));
+
         System.Inc(Lx);
         System.Inc(LIdx);
       end;
