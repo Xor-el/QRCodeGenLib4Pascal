@@ -114,9 +114,9 @@
 {$DEFINE DELPHI10.2_TOKYO_UP}
 {$IFEND}
 
-  // 2010 and Above
-{$IFNDEF DELPHI2010_UP}
-{$MESSAGE ERROR 'This Library requires Delphi 2010 or higher.'}
+  // XE3 and Above
+{$IFNDEF DELPHIXE3_UP}
+{$MESSAGE ERROR 'This Library requires Delphi XE3 or higher.'}
 {$ENDIF}
 
   // 10.2 Tokyo and Above
