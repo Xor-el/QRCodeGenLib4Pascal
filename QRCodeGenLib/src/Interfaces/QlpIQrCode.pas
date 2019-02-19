@@ -94,7 +94,7 @@ type
     {$IFNDEF FMX}
     /// <summary>
     /// Returns a jpeg image depicting this QR Code, with the specified
-    /// module scale and border modules. For example, ToBmpImage(scale=10,
+    /// module scale and border modules. For example, ToJpegImage(scale=10,
     /// border=4) means to pad the QR Code with 4 white border modules on all
     /// four sides, and use 10×10 pixels to represent each module. The
     /// resulting image contains the colors specified by the backgroundcolor
@@ -122,7 +122,7 @@ type
 
     /// <summary>
     /// Returns a png image depicting this QR Code, with the specified
-    /// module scale and border modules. For example, ToBmpImage(scale=10,
+    /// module scale and border modules. For example, ToPngImage(scale=10,
     /// border=4) means to pad the QR Code with 4 white border modules on all
     /// four sides, and use 10×10 pixels to represent each module. The
     /// resulting image contains the colors specified by the backgroundcolor
