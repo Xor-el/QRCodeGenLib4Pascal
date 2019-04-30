@@ -1,0 +1,57 @@
+package QRCodeGenLib4PascalPackage;
+
+{$R *.res}
+{$WARNINGS OFF}
+{$HINTS OFF}
+{$IFDEF IMPLICITBUILDING This IFDEF should not be used by users}
+{$ALIGN 8}
+{$ASSERTIONS ON}
+{$BOOLEVAL OFF}
+{$DEBUGINFO OFF}
+{$EXTENDEDSYNTAX ON}
+{$IMPORTEDDATA ON}
+{$IOCHECKS ON}
+{$LOCALSYMBOLS OFF}
+{$LONGSTRINGS ON}
+{$OPENSTRINGS ON}
+{$OPTIMIZATION ON}
+{$OVERFLOWCHECKS OFF}
+{$RANGECHECKS OFF}
+{$REFERENCEINFO OFF}
+{$SAFEDIVIDE OFF}
+{$STACKFRAMES OFF}
+{$TYPEDADDRESS OFF}
+{$VARSTRINGCHECKS ON}
+{$WRITEABLECONST OFF}
+{$MINENUMSIZE 1}
+{$IMAGEBASE $400000}
+{$DEFINE RELEASE}
+{$ENDIF IMPLICITBUILDING}
+{$RUNONLY}
+{$IMPLICITBUILD ON}
+
+requires
+  rtl,
+  vcl,
+  vclimg;
+
+contains
+  QlpIQrCode in '..\..\Interfaces\QlpIQrCode.pas',
+  QlpQrCode in '..\..\QRCodeGen\QlpQrCode.pas',
+  QlpQrTemplate in '..\..\QRCodeGen\QlpQrTemplate.pas',
+  QlpBits in '..\..\Utils\QlpBits.pas',
+  QlpArrayUtils in '..\..\Utils\QlpArrayUtils.pas',
+  QlpQrCodeCommons in '..\..\QRCodeGen\QlpQrCodeCommons.pas',
+  QlpQrSegment in '..\..\QRCodeGen\QlpQrSegment.pas',
+  QlpBitBuffer in '..\..\QRCodeGen\QlpBitBuffer.pas',
+  QlpQRCodeGenLibTypes in '..\..\Utils\QlpQRCodeGenLibTypes.pas',
+  QlpConverters in '..\..\Utils\QlpConverters.pas',
+  QlpReedSolomonGenerator in '..\..\QRCodeGen\QlpReedSolomonGenerator.pas',
+  QlpQrSegmentMode in '..\..\QRCodeGen\QlpQrSegmentMode.pas',
+  QlpGuard in '..\..\Utils\QlpGuard.pas',
+  QlpIQrSegment in '..\..\Interfaces\QlpIQrSegment.pas',
+  QlpIQrTemplate in '..\..\Interfaces\QlpIQrTemplate.pas',
+  QlpIReedSolomonGenerator in '..\..\Interfaces\QlpIReedSolomonGenerator.pas';
+
+end.
+
