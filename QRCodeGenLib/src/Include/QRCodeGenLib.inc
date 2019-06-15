@@ -40,12 +40,15 @@
 {$OPTIMIZATION STRENGTH}
 {$OPTIMIZATION CSE}
 {$OPTIMIZATION DFA}
+
 {$IFDEF CPUI386}
-{$OPTIMIZATION USEEBP}
+   {$OPTIMIZATION USEEBP}
 {$ENDIF}
+
 {$IFDEF CPUX86_64}
-{$OPTIMIZATION USERBP}
+   {$OPTIMIZATION USERBP}
 {$ENDIF}
+
 {$ENDIF FPC}
 
 (* &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& *)
@@ -73,26 +76,26 @@
 
  // XE3 and Above
 {$IF CompilerVersion >= 24.0}
-{$DEFINE DELPHIXE3_UP}
-{$LEGACYIFEND ON}
-{$ZEROBASEDSTRINGS OFF}
+   {$DEFINE DELPHIXE3_UP}
+   {$LEGACYIFEND ON}
+   {$ZEROBASEDSTRINGS OFF}
 {$IFEND}
 
   // XE and Above
 {$IF CompilerVersion >= 22.0}
-{$DEFINE DELPHIXE_UP}
+   {$DEFINE DELPHIXE_UP}
 {$IFEND}
 
   // XE3 and Above
 {$IFNDEF DELPHIXE3_UP}
-{$MESSAGE ERROR 'This Library requires Delphi XE3 or higher.'}
+   {$MESSAGE ERROR 'This Library requires Delphi XE3 or higher.'}
 {$ENDIF}
 
 {.$DEFINE Framework_FMX} // enable to force FMX mode
 {$IFDEF Framework_FMX}
-{$DEFINE FMX}
+   {$DEFINE FMX}
 {$ELSE}
-{$DEFINE VCL}
+   {$DEFINE VCL}
 {$ENDIF}
 
 {$ENDIF DELPHI}
