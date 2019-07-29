@@ -19,13 +19,15 @@ resourcestring
 type
 
   /// <summary>
-  /// An appendable sequence of bits (0s and 1s). Mainly used by <see cref="QlpQrSegment">
+  /// // An appendable sequence of bits (0s and 1s), mainly used by <see cref="QlpQrSegment">
   /// TQrSegment</see>.
   /// </summary>
   TBitBuffer = record
   strict private
   var
+    // In each 32-bit word, bits are filled from top down.
     FData: TQRCodeGenLibInt32Array;
+    // Always non-negative.
     FBitLength: Int32;
     FBitBufferInitialized: Boolean;
 
@@ -43,21 +45,18 @@ type
   public
 
     /// <summary>
-    /// Constructs an empty bit buffer (length 0).
+    /// Creates an empty bit buffer.
     /// </summary>
     class function Create(): TBitBuffer; static;
 
     /// <summary>
-    /// Returns the length of this sequence, which is a non-negative value.
+    /// Returns the bit at the given index, yielding 0 or 1.
     /// </summary>
-    /// <returns>
-    /// the length of this sequence
-    /// </returns>
     function GetBit(AIndex: Int32): Int32; inline;
 
     /// <summary>
-    /// Returns an array representing this buffer's bits packed into bytes in
-    /// big endian. The current bit length must be a multiple of 8.
+    /// Returns a new array representing this buffer's bits packed into
+    /// bytes in big endian. The current bit length must be a multiple of 8.
     /// </summary>
     /// <returns>
     /// a new byte array representing this bit sequence
@@ -65,9 +64,8 @@ type
     function GetBytes(): TQRCodeGenLibByteArray; inline;
 
     /// <summary>
-    /// Appends the specified number of low-order bits of the specified value
-    /// to this buffer. Requires 0 ≤ len ≤ 31 and 0 ≤ val &lt; 2 <sup>len</sup>
-    /// .
+    /// Appends the given number of low-order bits of the given value to this
+    /// buffer. Requires 0 &lt;= len &lt;= 31 and 0 &lt;= val &lt; 2^len.
     /// </summary>
     /// <param name="AValue">
     /// the value to append
@@ -84,6 +82,11 @@ type
     /// </exception>
     procedure AppendBits(AValue, ALength: Int32); overload;
 
+    /// <summary>
+    /// Appends to this buffer the sequence of bits represented by the given
+    /// word array and given bit length. Requires 0 &lt;= len &lt;= 32 *
+    /// System.Length(vals).
+    /// </summary>
     procedure AppendBits(const AValues: TQRCodeGenLibInt32Array;
       ALength: Int32); overload;
 

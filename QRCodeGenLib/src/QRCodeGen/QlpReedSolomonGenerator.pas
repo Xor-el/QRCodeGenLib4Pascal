@@ -28,11 +28,10 @@ type
 
   var
     // A table of size 256 * degree, where FPolynomialMultiply[i][j] := Multiply(i, coefficients[j]).
-    // 'coefficients' is the temporary array representing the coefficients of the divisor polynomial,
-    // stored from highest to lowest power, excluding the leading term which is always 1.
-    // For example the polynomial x^3 + 255x^2 + 8x + 93 is stored as the uint8 array {255, 8, 93}.
+    // 'coefficients' is the temporary array computed in the constructor.
     FPolynomialMultiply: TQRCodeGenLibMatrixByteArray;
 
+    // Creates a Reed-Solomon ECC generator polynomial for the given degree.
     constructor Create(ADegree: Int32);
     // Returns the product of the two given field elements modulo GF(2^8/$11D). The arguments and result
     // are unsigned 8-bit integers. This could be implemented as a lookup table of 256*256 entries of uint8.
@@ -42,6 +41,7 @@ type
     class destructor DestroyReedSolomonGenerator();
 
   public
+    // Returns the error correction codeword for the given data polynomial and this divisor polynomial.
     procedure GetRemainder(const AData: TQRCodeGenLibByteArray;
       ADataOff, ADataLen: Int32; const AResult: TQRCodeGenLibByteArray);
     class function GetInstance(ADegree: Int32): IReedSolomonGenerator; static;
@@ -64,12 +64,14 @@ begin
       (@SDegreeOutOfRange);
   end;
 
-  // Start with the monomial x^0
+  // The divisor polynomial, whose coefficients are stored from highest to lowest power.
+  // For example, x^3 + 255x^2 + 8x + 93 is stored as the uint8 array {255, 8, 93}.
   System.SetLength(LCoefficients, ADegree);
+  // Start off with the monomial x^0
   LCoefficients[ADegree - 1] := 1;
 
   // Compute the product polynomial (x - r^0) * (x - r^1) * (x - r^2) * ... * (x - r^{degree-1}),
-  // drop the highest term, and store the rest of the coefficients in order of descending powers.
+  // and drop the highest monomial term which is always 1x^degree.
   // Note that r = $02, which is a generator element of this field GF(2^8/$11D).
   LRoot := 1;
   LIIdx := 0;
@@ -181,10 +183,10 @@ begin
 {$IFDEF DEBUG}
   System.Assert(System.Length(AResult) = LDegree);
 {$ENDIF DEBUG}
-  // Compute the remainder by performing polynomial division
   TArrayUtils.Fill(AResult, Byte(0));
   LIIdx := ADataOff;
   LDataEnd := ADataOff + ADataLen;
+  // Polynomial division
   while LIIdx < LDataEnd do
   begin
     LTable := FPolynomialMultiply[(AData[LIIdx] xor AResult[0]) and $FF];
@@ -205,7 +207,7 @@ var
   Lz, LIdx: Int32;
 begin
 {$IFDEF DEBUG}
-  System.Assert((TBits.Asr32(Ax, 8) = 0) and (TBits.Asr32(Ay, 8) = 0));
+  System.Assert(((Ax shr 8) = 0) and ((Ay shr 8) = 0));
 {$ENDIF DEBUG}
   // Russian peasant multiplication
   Lz := 0;

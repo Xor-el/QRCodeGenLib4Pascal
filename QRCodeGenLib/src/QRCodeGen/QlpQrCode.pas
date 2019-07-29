@@ -1,4 +1,4 @@
-﻿unit QlpQrCode;
+unit QlpQrCode;
 
 {$I ..\Include\QRCodeGenLib.inc}
 
@@ -171,8 +171,8 @@ type
     /// </summary>
     procedure SetModule(Ax, Ay, ABlack: Int32);
 
-    // Returns a new byte string representing the given data with the appropriate error correction
-    // codewords appended to it, based on this object's version and error correction level.
+    // Draws the given sequence of 8-bit codewords (data and error correction)
+    // onto the entire data area of this QR Code, based on the given bit indexes.
     function AddEccAndInterleave(const AData: TQRCodeGenLibByteArray)
       : TQRCodeGenLibByteArray;
 
@@ -185,11 +185,11 @@ type
     // The function modules must be marked and the codeword bits must be drawn
     // before masking. Due to the arithmetic of XOR, calling ApplyMask() with
     // the same mask value a second time will undo the mask. A final well-formed
-    // QR Code symbol needs exactly one (not zero, two, etc.) mask applied.
+    // QR Code needs exactly one (not zero, two, etc.) mask applied.
     procedure ApplyMask(const AMask: TQRCodeGenLibInt32Array);
 
     // A messy helper function for the constructor. This QR Code must be in an unmasked state when this
-    // method is called. The given argument is the requested mask, which is -1 for auto or 0 to 7 for fixed.
+    // method is called. The 'mask' argument is the requested mask, which is -1 for auto or 0 to 7 for fixed.
     // This method applies and returns the actual mask chosen, from 0 to 7.
     function HandleConstructorMasking(const AMasks
       : TQRCodeGenLibMatrixInt32Array; AMask: Int32): Int32;
@@ -215,16 +215,18 @@ type
     class function GetNumDataCodeWords(AVersion: Int32; AEcl: TEcc)
       : Int32; inline;
 
-    // Inserts the given value to the front of the given array, which shifts over the
-    // existing values and deletes the last value. A helper function for GetPenaltyScore().
-    class procedure AddRunToHistory(ARun: Int32;
-      const AHistory: TQRCodeGenLibInt32Array); static; inline;
+    // Pushes the given value to the front and drops the last value. A helper function for GetPenaltyScore().
+    class procedure FinderPenaltyAddHistory(ACurrentRunLength: Int32;
+      const ARunHistory: TQRCodeGenLibInt32Array); static; inline;
 
-    // Tests whether the given run history has the pattern of ratio 1:1:3:1:1 in the middle, and
-    // surrounded by at least 4 on either or both ends. A helper function for GetPenaltyScore().
-    // Must only be called immediately after a run of white modules has ended.
-    class function HasFinderLikePattern(const ARunHistory
-      : TQRCodeGenLibInt32Array): Boolean; static; inline;
+    // Can only be called immediately after a white run is added, and
+    // returns either 0, 1, or 2. A helper function for getPenaltyScore().
+    function FinderPenaltyCountPatterns(const ARunHistory
+      : TQRCodeGenLibInt32Array): Int32; inline;
+
+    // Must be called at the end of a line (row or column) of modules. A helper function for GetPenaltyScore()
+    function FinderPenaltyTerminateAndCount(ACurrentRunColor, ACurrentRunLength
+      : Int32; ARunHistory: TQRCodeGenLibInt32Array): Int32; inline;
 
 {$IFNDEF FMX}
     class function GetRValue(Argb: UInt32): Byte; static; inline;
@@ -657,8 +659,8 @@ begin
     LMinPenalty := System.High(Int32);
     for LIdx := 0 to System.Pred(8) do
     begin
-      DrawFormatBits(LIdx);
       ApplyMask(AMasks[LIdx]);
+      DrawFormatBits(LIdx);
       LPenalty := GetPenaltyScore();
       if (LPenalty < LMinPenalty) then
       begin
@@ -671,8 +673,8 @@ begin
 {$IFDEF DEBUG}
   System.Assert((0 <= AMask) and (AMask <= 7));
 {$ENDIF DEBUG}
-  DrawFormatBits(AMask); // Overwrite old format bits
   ApplyMask(AMasks[AMask]); // Apply the final choice of mask
+  DrawFormatBits(AMask); // Overwrite old format bits
   // The caller shall assign this value to the final-declared field
   Result := AMask;
 end;
@@ -702,29 +704,69 @@ begin
     [LEclInt][AVersion]);
 end;
 
-class function TQrCode.HasFinderLikePattern(const ARunHistory
-  : TQRCodeGenLibInt32Array): Boolean;
-var
-  Ln: Int32;
+class procedure TQrCode.FinderPenaltyAddHistory(ACurrentRunLength: Int32;
+  const ARunHistory: TQRCodeGenLibInt32Array);
 begin
-  Ln := ARunHistory[1];
-  Result := (Ln > 0) and (ARunHistory[2] = Ln) and (ARunHistory[4] = Ln) and
-    (ARunHistory[5] = Ln) and (ARunHistory[3] = Ln * 3) and
-    (Max(ARunHistory[0], ARunHistory[6]) >= Ln * 4);
+  System.Move(ARunHistory[0], ARunHistory[1], (System.Length(ARunHistory) - 1) *
+    System.SizeOf(Int32));
+  ARunHistory[0] := ACurrentRunLength;
 end;
 
-class procedure TQrCode.AddRunToHistory(ARun: Int32;
-  const AHistory: TQRCodeGenLibInt32Array);
+function TQrCode.FinderPenaltyCountPatterns(const ARunHistory
+  : TQRCodeGenLibInt32Array): Int32;
+var
+  Ln, LTempA, LTempB: Int32;
+  LCore: Boolean;
 begin
-  System.Move(AHistory[0], AHistory[1], (System.Length(AHistory) - 1) *
-    System.SizeOf(Int32));
-  AHistory[0] := ARun;
+  Ln := ARunHistory[1];
+{$IFDEF DEBUG}
+  System.Assert(Ln <= (Size * 3));
+{$ENDIF DEBUG}
+  LCore := (Ln > 0) and (ARunHistory[2] = Ln) and (ARunHistory[3] = Ln * 3) and
+    (ARunHistory[4] = Ln) and (ARunHistory[5] = Ln);
+
+  if ((LCore) and ((ARunHistory[0] >= (Ln * 4)) and (ARunHistory[6] >= Ln)))
+  then
+  begin
+    LTempA := 1;
+  end
+  else
+  begin
+    LTempA := 0;
+  end;
+
+  if ((LCore) and ((ARunHistory[6] >= (Ln * 4)) and (ARunHistory[0] >= Ln)))
+  then
+  begin
+    LTempB := 1;
+  end
+  else
+  begin
+    LTempB := 0;
+  end;
+
+  Result := LTempA + LTempB;
+end;
+
+function TQrCode.FinderPenaltyTerminateAndCount(ACurrentRunColor,
+  ACurrentRunLength: Int32; ARunHistory: TQRCodeGenLibInt32Array): Int32;
+begin
+  // Terminate black run
+  if (ACurrentRunColor = 1) then
+  begin
+    FinderPenaltyAddHistory(ACurrentRunLength, ARunHistory);
+    ACurrentRunLength := 0;
+  end;
+  ACurrentRunLength := ACurrentRunLength + Size;
+  // Add white border to final run
+  FinderPenaltyAddHistory(ACurrentRunLength, ARunHistory);
+  Result := FinderPenaltyCountPatterns(ARunHistory);
 end;
 
 function TQrCode.GetPenaltyScore: Int32;
 var
-  LEnd, LBlack, LIndex, LDownIndex, LCurRow, LNextRow, LColor, LRunX, LRunY, Lx,
-    Lc, LTotal, Lk, Ly: Int32;
+  LEnd, LBlack, LIndex, LDownIndex, LCurRow, LNextRow, LRunColor, LRunX, LRunY,
+    LPadRun, Lx, Lc, LTotal, Lk, Ly: Int32;
   LRunHistory: TQRCodeGenLibInt32Array;
 begin
   Result := 0;
@@ -737,10 +779,10 @@ begin
   // Iterate over adjacent pairs of rows
   while LIndex < LEnd do
   begin
-
-    TArrayUtils.Fill(LRunHistory, 0);
-    LColor := 0;
+    LRunColor := 0;
     LRunX := 0;
+    TArrayUtils.Fill(LRunHistory, 0);
+    LPadRun := Size; // Add white border to initial run
     LCurRow := 0;
     LNextRow := 0;
 
@@ -751,7 +793,7 @@ begin
       // Adjacent modules having same color
       Lc := TQrCodeCommons.GetBit(FModules[TBits.Asr32(LIndex, 5)], LIndex);
 
-      if (Lc = LColor) then
+      if (Lc = LRunColor) then
       begin
         System.Inc(LRunX);
         if (LRunX = 5) then
@@ -765,12 +807,14 @@ begin
       end
       else
       begin
-        AddRunToHistory(LRunX, LRunHistory);
-        if ((LColor = 0) and (HasFinderLikePattern(LRunHistory))) then
+        FinderPenaltyAddHistory(LRunX + LPadRun, LRunHistory);
+        LPadRun := 0;
+        if (LRunColor = 0) then
         begin
-          Result := Result + PENALTY_N3;
+          Result := Result + FinderPenaltyCountPatterns(LRunHistory) *
+            PENALTY_N3;
         end;
-        LColor := Lc;
+        LRunColor := Lc;
         LRunX := 1;
       end;
 
@@ -795,25 +839,18 @@ begin
       System.Inc(LDownIndex);
     end;
 
-    AddRunToHistory(LRunX, LRunHistory);
-    if (LColor = 1) then
-    begin
-      AddRunToHistory(0, LRunHistory); // Dummy run of white
-    end;
-    if (HasFinderLikePattern(LRunHistory)) then
-    begin
-      Result := Result + PENALTY_N3;
-    end;
-
+    Result := Result + FinderPenaltyTerminateAndCount(LRunColor,
+      LRunX + LPadRun, LRunHistory) * PENALTY_N3;
   end;
 
   // Iterate over single columns
   Lx := 0;
   while Lx < FSize do
   begin
-    TArrayUtils.Fill(LRunHistory, 0);
-    LColor := 0;
+    LRunColor := 0;
     LRunY := 0;
+    TArrayUtils.Fill(LRunHistory, 0);
+    LPadRun := Size; // Add white border to initial run
     Ly := 0;
     LIndex := Lx;
     while Ly < FSize do
@@ -821,7 +858,7 @@ begin
       // Adjacent modules having same color
       Lc := TQrCodeCommons.GetBit(FModules[TBits.Asr32(LIndex, 5)], LIndex);
 
-      if (Lc = LColor) then
+      if (Lc = LRunColor) then
       begin
         System.Inc(LRunY);
         if (LRunY = 5) then
@@ -835,27 +872,22 @@ begin
       end
       else
       begin
-        AddRunToHistory(LRunY, LRunHistory);
-        if ((LColor = 0) and (HasFinderLikePattern(LRunHistory))) then
+        FinderPenaltyAddHistory(LRunY + LPadRun, LRunHistory);
+        LPadRun := 0;
+        if (LRunColor = 0) then
         begin
-          Result := Result + PENALTY_N3;
+          Result := Result + FinderPenaltyCountPatterns(LRunHistory) *
+            PENALTY_N3;
         end;
-        LColor := Lc;
+        LRunColor := Lc;
         LRunY := 1;
       end;
 
       System.Inc(Ly);
       System.Inc(LIndex, FSize);
     end;
-    AddRunToHistory(LRunY, LRunHistory);
-    if (LColor = 1) then
-    begin
-      AddRunToHistory(0, LRunHistory); // Dummy run of white
-    end;
-    if (HasFinderLikePattern(LRunHistory)) then
-    begin
-      Result := Result + PENALTY_N3;
-    end;
+    Result := Result + FinderPenaltyTerminateAndCount(LRunColor,
+      LRunY + LPadRun, LRunHistory) * PENALTY_N3;
     System.Inc(Lx);
   end;
 
@@ -1010,22 +1042,15 @@ begin
 {$IFDEF DEBUG}
   System.Assert((0 <= Ax) and (Ax < FSize));
   System.Assert((0 <= Ay) and (Ay < FSize));
+  System.Assert((ABlack = 0) or (ABlack = 1));
 {$ENDIF DEBUG}
   LIdx := (Ay * FSize) + Ax;
-  if (ABlack = 0) then
-  begin
-    FModules[TBits.Asr32(LIdx, 5)] := FModules[TBits.Asr32(LIdx, 5)] and
-      (not(TBits.LeftShift32(1, LIdx)));
-  end
-  else if (ABlack = 1) then
-  begin
-    FModules[TBits.Asr32(LIdx, 5)] := FModules[TBits.Asr32(LIdx, 5)] or
-      (TBits.LeftShift32(1, LIdx));
-  end
-  else
-  begin
-    raise EArgumentInvalidQRCodeGenLibException.Create('');
-  end;
+
+  FModules[TBits.Asr32(LIdx, 5)] := FModules[TBits.Asr32(LIdx, 5)] and
+    (not(TBits.LeftShift32(1, LIdx)));
+
+  FModules[TBits.Asr32(LIdx, 5)] := FModules[TBits.Asr32(LIdx, 5)] or
+    (TBits.LeftShift32(ABlack, LIdx));
 end;
 
 {$IFDEF LCL}
@@ -1494,7 +1519,6 @@ begin
 
   // Create the QR Code symbol
   Result := TQrCode.Create(LVersion, AEcl, LBitBuffer.GetBytes(), AMask);
-
 end;
 
 class function TQrCode.EncodeText(const AText: String; AEcl: TEcc;

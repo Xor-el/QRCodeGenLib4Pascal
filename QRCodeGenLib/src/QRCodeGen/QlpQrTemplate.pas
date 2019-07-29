@@ -30,16 +30,23 @@ type
     FLock: TCriticalSection;
 
   var
-    FVersion, FSize: Int32;
+    FVersion: Int32; // In the range [1, 40].
+    FSize: Int32; // Derived from version.
 
     // "FIsFunction" Indicates function modules that are not subjected to masking. Discarded when constructor finishes.
-    FTemplate, FDataOutputBitIndexes, FIsFunction: TQRCodeGenLibInt32Array;
+    // Otherwise when the constructor is running, System.length(FIsFunction) == System.length(FTemplate).
+    FIsFunction: TQRCodeGenLibInt32Array;
+    FTemplate: TQRCodeGenLibInt32Array;
+    // Length and values depend on version.
+    FDataOutputBitIndexes: TQRCodeGenLibInt32Array;
+    // System.length(FMasks) == 8, and System.length(FMasks[i]) == System.length(FTemplate).
     FMasks: TQRCodeGenLibMatrixInt32Array;
 
     function GetTemplate(): TQRCodeGenLibInt32Array; inline;
     function GetDataOutputBitIndexes(): TQRCodeGenLibInt32Array; inline;
     function GetMasks(): TQRCodeGenLibMatrixInt32Array;
 
+    // Returns the value of the bit at the given coordinates in the given grid.
     function GetModule(const AGrid: TQRCodeGenLibInt32Array; Ax, Ay: Int32)
       : Int32; inline;
 
@@ -48,10 +55,13 @@ type
     // This could be implemented as lookup table of 40 variable-length lists of unsigned bytes.
     function GetAlignmentPatternPositions(): TQRCodeGenLibInt32Array;
 
+    // Computes and returns an array of bit indexes, based on this object's various fields.
     function GenerateZigZagScan(): TQRCodeGenLibInt32Array;
 
+    // Computes and returns a new array of masks, based on this object's various fields.
     function GenerateMasks(): TQRCodeGenLibMatrixInt32Array;
 
+    // Reads this object's version field, and draws and marks all function modules.
     procedure DrawFunctionPatterns();
     // Draws two blank copies of the format bits.
     procedure DrawDummyFormatBits();
@@ -68,6 +78,7 @@ type
     // Also either sets that module black or keeps its color unchanged.
     procedure DarkenFunctionModule(Ax, Ay, AEnable: Int32); inline;
 
+    // Creates a QR Code template for the given version number.
     constructor Create(AVersion: Int32);
 
     class constructor CreateQrTemplate();
@@ -230,7 +241,7 @@ begin
   begin
     DarkenFunctionModule(8, FSize - 15 + LIdx, 0);
   end;
-  DarkenFunctionModule(8, FSize - 8, 1);
+  DarkenFunctionModule(8, FSize - 8, 1); // Always black
 end;
 
 procedure TQrTemplate.DrawFinderPattern(Ax, Ay: Int32);
