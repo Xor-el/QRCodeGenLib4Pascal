@@ -5,16 +5,6 @@ unit QlpIQrCode;
 interface
 
 uses
-{$IF DEFINED(VCL)}
-  Vcl.Graphics,
-  Vcl.Imaging.jpeg, // for VCL JPEG Support
-  Vcl.Imaging.pngimage, // for VCL PNG Support
-{$ELSEIF DEFINED(FMX)}
-  FMX.Graphics,
-  System.UITypes,
-{$ELSEIF DEFINED(LCL)}
-  Graphics,
-{$IFEND}
   QlpQRCodeGenLibTypes;
 
 type
@@ -29,19 +19,13 @@ type
     property Mask: Int32 read GetMask;
     function GetModules: TQRCodeGenLibInt32Array;
     property Modules: TQRCodeGenLibInt32Array read GetModules;
-    function GetBackgroundColor:
-{$IFNDEF FMX}TColor{$ELSE}TAlphaColor{$ENDIF FMX};
-    procedure SetBackgroundColor(const AColor:
-{$IFNDEF FMX}TColor{$ELSE}TAlphaColor{$ENDIF FMX});
-    property BackgroundColor:
-{$IFNDEF FMX}TColor{$ELSE}TAlphaColor{$ENDIF FMX} read GetBackgroundColor
+    function GetBackgroundColor: TQRCodeGenLibColor;
+    procedure SetBackgroundColor(const AColor: TQRCodeGenLibColor);
+    property BackgroundColor: TQRCodeGenLibColor read GetBackgroundColor
       write SetBackgroundColor;
-    function GetForegroundColor:
-{$IFNDEF FMX}TColor{$ELSE}TAlphaColor{$ENDIF FMX};
-    procedure SetForegroundColor(const AColor:
-{$IFNDEF FMX}TColor{$ELSE}TAlphaColor{$ENDIF FMX});
-    property ForegroundColor:
-    {$IFNDEF FMX}TColor{$ELSE}TAlphaColor{$ENDIF FMX} read GetForegroundColor
+    function GetForegroundColor: TQRCodeGenLibColor;
+    procedure SetForegroundColor(const AColor: TQRCodeGenLibColor);
+    property ForegroundColor: TQRCodeGenLibColor read GetForegroundColor
       write SetForegroundColor;
 
     /// <summary>
@@ -89,9 +73,9 @@ type
     /// <b>The caller is responsible for the lifetime of the returned image
     /// object.</b>
     /// </remarks>
-    function ToBmpImage(AScale, ABorder: Int32): TBitmap;
+    function ToBmpImage(AScale, ABorder: Int32): TQRCodeGenLibBitmap;
 
-    {$IFNDEF FMX}
+{$IFNDEF FMX}
     /// <summary>
     /// Returns a jpeg image depicting this QR Code, with the specified
     /// module scale and border modules. For example, ToJpegImage(scale=10,
@@ -118,7 +102,7 @@ type
     /// <b>The caller is responsible for the lifetime of the returned image
     /// object.</b>
     /// </remarks>
-    function ToJpegImage(AScale, ABorder: Int32): TJPEGImage;
+    function ToJpegImage(AScale, ABorder: Int32): TQRCodeGenLibJPEGImage;
 
     /// <summary>
     /// Returns a png image depicting this QR Code, with the specified
@@ -146,10 +130,8 @@ type
     /// <b>The caller is responsible for the lifetime of the returned image
     /// object.</b>
     /// </remarks>
-    function ToPngImage(AScale, ABorder: Int32):
-{$IFDEF FPC}TPortableNetworkGraphic{$ELSE}TPngImage{$ENDIF FPC};
+    function ToPngImage(AScale, ABorder: Int32): TQRCodeGenLibPNGImage;
 {$ENDIF FMX}
-
     /// <summary>
     /// Returns a string of SVG code for an image depicting this QR Code,
     /// with the specified number of border modules. The string always uses

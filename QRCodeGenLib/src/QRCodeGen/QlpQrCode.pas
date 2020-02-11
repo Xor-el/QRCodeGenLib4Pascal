@@ -1,4 +1,4 @@
-unit QlpQrCode;
+﻿unit QlpQrCode;
 
 {$I ..\Include\QRCodeGenLib.inc}
 
@@ -8,18 +8,6 @@ uses
   Math,
   Classes,
   SysUtils,
-{$IF DEFINED(VCL)}
-  Vcl.Graphics,
-  Vcl.Imaging.jpeg, // for VCL JPEG Support
-  Vcl.Imaging.pngimage, // for VCL PNG Support
-{$ELSEIF DEFINED(FMX)}
-  FMX.Graphics,
-  UIConsts,
-  UITypes,
-{$ELSEIF DEFINED(LCL)}
-  Graphics,
-  Interfaces, // Added so that the LCL will Initialize the WidgetSet
-{$IFEND}
   QlpIQrCode,
   QlpIQrTemplate,
   QlpQrTemplate,
@@ -145,21 +133,16 @@ type
     FErrorCorrectionLevel: TEcc;
     // Private grid of modules/pixels:
     FModules: TQRCodeGenLibInt32Array;
-    FBackgroundColor, FForegroundColor:
-{$IFNDEF FMX}TColor{$ELSE}TAlphaColor{$ENDIF FMX};
+    FBackgroundColor, FForegroundColor: TQRCodeGenLibColor;
 
     function GetVersion: Int32; inline;
     function GetSize: Int32; inline;
     function GetMask: Int32; inline;
     function GetModules: TQRCodeGenLibInt32Array; inline;
-    function GetBackgroundColor:
-{$IFNDEF FMX}TColor{$ELSE}TAlphaColor{$ENDIF FMX}; inline;
-    function GetForegroundColor:
-{$IFNDEF FMX}TColor{$ELSE}TAlphaColor{$ENDIF FMX}; inline;
-    procedure SetBackgroundColor(const AColor:
-{$IFNDEF FMX}TColor{$ELSE}TAlphaColor{$ENDIF FMX}); inline;
-    procedure SetForegroundColor(const AColor:
-{$IFNDEF FMX}TColor{$ELSE}TAlphaColor{$ENDIF FMX}); inline;
+    function GetBackgroundColor: TQRCodeGenLibColor; inline;
+    function GetForegroundColor: TQRCodeGenLibColor; inline;
+    procedure SetBackgroundColor(const AColor: TQRCodeGenLibColor); inline;
+    procedure SetForegroundColor(const AColor: TQRCodeGenLibColor); inline;
 
     // Draws two copies of the format bits (with its own error correction code)
     // based on the given mask and this object's error correction level field.
@@ -201,13 +184,13 @@ type
     procedure ValidateImageDimensions(AScale, ABorder: Int32);
 
 {$IFDEF LCL}
-    function ToBmpImageInternalLCL(AScale, ABorder: Int32): TBitmap;
+    function ToBmpImageInternalLCL(AScale, ABorder: Int32): TQRCodeGenLibBitmap;
 {$ENDIF LCL}
 {$IFDEF VCL}
-    function ToBmpImageInternalVCL(AScale, ABorder: Int32): TBitmap;
+    function ToBmpImageInternalVCL(AScale, ABorder: Int32): TQRCodeGenLibBitmap;
 {$ENDIF VCL}
 {$IFDEF FMX}
-    function ToBmpImageInternalFMX(AScale, ABorder: Int32): TBitmap;
+    function ToBmpImageInternalFMX(AScale, ABorder: Int32): TQRCodeGenLibBitmap;
 {$ENDIF FMX}
     // Returns the number of 8-bit data (i.e. not error correction) codewords contained in any
     // QR Code of the given version number and error correction level, with remainder bits discarded.
@@ -226,42 +209,8 @@ type
 
     // Must be called at the end of a line (row or column) of modules. A helper function for GetPenaltyScore()
     function FinderPenaltyTerminateAndCount(ACurrentRunColor, ACurrentRunLength
-      : Int32; ARunHistory: TQRCodeGenLibInt32Array): Int32; inline;
+      : Int32; const ARunHistory: TQRCodeGenLibInt32Array): Int32; inline;
 
-{$IFNDEF FMX}
-    class function GetRValue(Argb: UInt32): Byte; static; inline;
-    class function GetGValue(Argb: UInt32): Byte; static; inline;
-    class function GetBValue(Argb: UInt32): Byte; static; inline;
-
-    /// <summary>
-    /// Convert a Delphi/Lazarus <c>TColor</c> to <c>HTML</c> Color code in
-    /// Hex <c>.</c>
-    /// </summary>
-    /// <param name="AColor">
-    /// the <c>TColor</c> to convert
-    /// </param>
-    /// <returns>
-    /// returns a string containing the <c>HTML</c> Color code representation
-    /// of the <c>TColor</c> parameter in Hex
-    /// </returns>
-    class function TColorToHTMLColorHex(const AColor: TColor): String; inline;
-
-{$ELSE}
-    /// <summary>
-    /// Convert a Delphi FireMonkey <c>TAlphaColor</c> to <c>HTML</c> Color code in
-    /// Hex <c>.</c>
-    /// </summary>
-    /// <param name="AColor">
-    /// the <c>TAlphaColor</c> to convert
-    /// </param>
-    /// <returns>
-    /// returns a string containing the <c>HTML</c> Color code representation
-    /// of the <c>TAlphaColor</c> parameter in Hex
-    /// </returns>
-    class function TAlphaColorToHTMLColorHex(const AColor: TAlphaColor)
-      : String; inline;
-
-{$ENDIF FMX}
   public
 
     const
@@ -341,16 +290,14 @@ type
     /// property for getting/setting the background color of the QRCode <br />
     /// Object <br />
     /// </summary>
-    property BackgroundColor:
-{$IFNDEF FMX}TColor{$ELSE}TAlphaColor{$ENDIF FMX} read GetBackgroundColor
+    property BackgroundColor: TQRCodeGenLibColor read GetBackgroundColor
       write SetBackgroundColor;
 
     /// <summary>
     /// property for getting/setting the foreground color of the QRCode
     /// Object
     /// </summary>
-    property ForegroundColor:
-{$IFNDEF FMX}TColor{$ELSE}TAlphaColor{$ENDIF FMX} read GetForegroundColor
+    property ForegroundColor: TQRCodeGenLibColor read GetForegroundColor
       write SetForegroundColor;
 
     /// <summary>
@@ -379,7 +326,7 @@ type
     /// <b>The caller is responsible for the lifetime of the returned image
     /// object.</b>
     /// </remarks>
-    function ToBmpImage(AScale, ABorder: Int32): TBitmap;
+    function ToBmpImage(AScale, ABorder: Int32): TQRCodeGenLibBitmap;
 
 {$IFNDEF FMX}
     /// <summary>
@@ -408,7 +355,7 @@ type
     /// <b>The caller is responsible for the lifetime of the returned image
     /// object.</b>
     /// </remarks>
-    function ToJpegImage(AScale, ABorder: Int32): TJPEGImage;
+    function ToJpegImage(AScale, ABorder: Int32): TQRCodeGenLibJPEGImage;
 
     /// <summary>
     /// Returns a png image depicting this QR Code, with the specified
@@ -436,8 +383,7 @@ type
     /// <b>The caller is responsible for the lifetime of the returned image
     /// object.</b>
     /// </remarks>
-    function ToPngImage(AScale, ABorder: Int32):
-{$IFDEF FPC}TPortableNetworkGraphic{$ELSE}TPngImage{$ENDIF FPC};
+    function ToPngImage(AScale, ABorder: Int32): TQRCodeGenLibPNGImage;
 {$ENDIF FMX}
     /// <summary>
     /// Returns a string of SVG code for an image depicting this QR Code,
@@ -607,41 +553,44 @@ type
 
 implementation
 
+{ TQrCode.TEccHelper }
+
+function TQrCode.TEccHelper.GetFormatBits: Int32;
+begin
+  Result := Ord(Self);
+end;
+
+function TQrCode.TEccHelper.GetToInt32: Int32;
+begin
+  case Self of
+    TQrCode.TEcc.eccLow:
+      begin
+        Result := 0;
+        Exit;
+      end;
+    TQrCode.TEcc.eccMedium:
+      begin
+        Result := 1;
+        Exit;
+      end;
+    TQrCode.TEcc.eccQuartile:
+      begin
+        Result := 2;
+        Exit;
+      end;
+    TQrCode.TEcc.eccHigh:
+      begin
+        Result := 3;
+        Exit;
+      end
+  else
+    begin
+      raise EInvalidOperationQRCodeGenLibException.CreateRes(@SInvalidState);
+    end;
+  end;
+end;
+
 { TQrCode }
-
-{$IFNDEF FMX}
-
-class function TQrCode.GetRValue(Argb: UInt32): Byte;
-begin
-  Result := Byte(Argb);
-end;
-
-class function TQrCode.GetGValue(Argb: UInt32): Byte;
-begin
-  Result := Byte(Argb shr 8);
-end;
-
-class function TQrCode.GetBValue(Argb: UInt32): Byte;
-begin
-  Result := Byte(Argb shr 16);
-end;
-
-class function TQrCode.TColorToHTMLColorHex(const AColor: TColor): String;
-begin
-  Result := Format('%.2x%.2x%.2x', [GetRValue(ColorToRGB(AColor)),
-    GetGValue(ColorToRGB(AColor)), GetBValue(ColorToRGB(AColor))]);
-end;
-
-{$ELSE}
-
-class function TQrCode.TAlphaColorToHTMLColorHex(const AColor
-  : TAlphaColor): String;
-begin
-  Result := Format('%.2x%.2x%.2x', [TAlphaColorRec(AColor).R,
-    TAlphaColorRec(AColor).G, TAlphaColorRec(AColor).B]);
-end;
-
-{$ENDIF FMX}
 
 function TQrCode.GetVersion: Int32;
 begin
@@ -749,7 +698,7 @@ begin
 end;
 
 function TQrCode.FinderPenaltyTerminateAndCount(ACurrentRunColor,
-  ACurrentRunLength: Int32; ARunHistory: TQRCodeGenLibInt32Array): Int32;
+  ACurrentRunLength: Int32; const ARunHistory: TQRCodeGenLibInt32Array): Int32;
 begin
   // Terminate black run
   if (ACurrentRunColor = 1) then
@@ -1031,8 +980,8 @@ begin
   LAllCodewords := AddEccAndInterleave(ADataCodewords);
   DrawCodeWords(LTpl.DataOutputBitIndexes, LAllCodewords);
   FMask := HandleConstructorMasking(LTpl.Masks, AMask);
-  FBackgroundColor := {$IFNDEF FMX}clWhite{$ELSE}claWhite{$ENDIF FMX};
-  FForegroundColor := {$IFNDEF FMX}clBlack{$ELSE}claBlack{$ENDIF FMX};
+  FBackgroundColor := QRCodeGenLibWhiteColor;
+  FForegroundColor := QRCodeGenLibBlackColor;
 end;
 
 procedure TQrCode.SetModule(Ax, Ay, ABlack: Int32);
@@ -1055,16 +1004,16 @@ end;
 
 {$IFDEF LCL}
 
-function TQrCode.ToBmpImageInternalLCL(AScale, ABorder: Int32): TBitmap;
+function TQrCode.ToBmpImageInternalLCL(AScale, ABorder: Int32)
+  : TQRCodeGenLibBitmap;
 var
   LColumn, LRow: Int32;
   LDoColor: Boolean;
-  LBrushColor: TColor;
-  LForegroundColor, LBackgroundColor: TColor;
+  LBrushColor, LForegroundColor, LBackgroundColor: TQRCodeGenLibColor;
   LScanLine: PByte;
   LBytesPerPixel, LRedOffset, LGreenOffset, LBlueOffset: Byte;
 begin
-  Result := TBitmap.Create;
+  Result := TQRCodeGenLibBitmap.Create;
 
   Result.SetSize((FSize + (ABorder * 2)) * AScale, (FSize + (ABorder * 2))
     * AScale);
@@ -1100,9 +1049,9 @@ begin
         end;
         // Slow !!!
         // Result.Canvas.Pixels[LRow, LColumn] := LBrushColor;
-        (LScanLine + LBlueOffset)^ := GetBValue(LBrushColor);
-        (LScanLine + LGreenOffset)^ := GetGValue(LBrushColor);
-        (LScanLine + LRedOffset)^ := GetRValue(LBrushColor);
+        (LScanLine + LBlueOffset)^ := TConverters.GetBValue(LBrushColor);
+        (LScanLine + LGreenOffset)^ := TConverters.GetGValue(LBrushColor);
+        (LScanLine + LRedOffset)^ := TConverters.GetRValue(LBrushColor);
         System.Inc(LScanLine, LBytesPerPixel);
       end;
     end;
@@ -1113,7 +1062,8 @@ end;
 {$ENDIF LCL}
 {$IFDEF VCL}
 
-function TQrCode.ToBmpImageInternalVCL(AScale, ABorder: Int32): TBitmap;
+function TQrCode.ToBmpImageInternalVCL(AScale, ABorder: Int32)
+  : TQRCodeGenLibBitmap;
 type
   TRGBTriple = record
     B, G, R: Byte;
@@ -1126,12 +1076,11 @@ type
 var
   LColumn, LRow: Int32;
   LDoColor: Boolean;
-  LBrushColor: TColor;
-  LForegroundColor, LBackgroundColor: TColor;
+  LBrushColor, LForegroundColor, LBackgroundColor: TQRCodeGenLibColor;
   LScanLine: PRGBTripleArray;
 begin
-  Result := TBitmap.Create;
-  Result.PixelFormat := pf24bit;
+  Result := TQRCodeGenLibBitmap.Create;
+  Result.PixelFormat := TwentyFourBitPixelFormat;
 
   Result.SetSize((FSize + (ABorder * 2)) * AScale, (FSize + (ABorder * 2))
     * AScale);
@@ -1156,9 +1105,9 @@ begin
       end;
       // Slow !!!
       // Result.Canvas.Pixels[LRow, LColumn] := LBrushColor;
-      LScanLine^[LRow].B := GetBValue(LBrushColor);
-      LScanLine^[LRow].G := GetGValue(LBrushColor);
-      LScanLine^[LRow].R := GetRValue(LBrushColor);
+      LScanLine^[LRow].B := TConverters.GetBValue(LBrushColor);
+      LScanLine^[LRow].G := TConverters.GetGValue(LBrushColor);
+      LScanLine^[LRow].R := TConverters.GetRValue(LBrushColor);
     end;
 
   end;
@@ -1166,21 +1115,21 @@ end;
 {$ENDIF VCL}
 {$IFDEF FMX}
 
-function TQrCode.ToBmpImageInternalFMX(AScale, ABorder: Int32): TBitmap;
+function TQrCode.ToBmpImageInternalFMX(AScale, ABorder: Int32)
+  : TQRCodeGenLibBitmap;
 var
   LColumn, LRow: Int32;
   LDoColor: Boolean;
-  LBrushColor: TColor;
-  LForegroundColor, LBackgroundColor: TColor;
-  LBitData: TBitmapData;
+  LBrushColor, LForegroundColor, LBackgroundColor: TQRCodeGenLibColor;
+  LBitData: TQRCodeGenLibBitmapData;
 begin
-  Result := TBitmap.Create;
+  Result := TQRCodeGenLibBitmap.Create;
   Result.SetSize((FSize + (ABorder * 2)) * AScale, (FSize + (ABorder * 2))
     * AScale);
   LForegroundColor := FForegroundColor;
   LBackgroundColor := FBackgroundColor;
 
-  if Result.Map(TMapAccess.Write, LBitData) then
+  if Result.Map(TQRCodeGenLibMapAccess.Write, LBitData) then
   begin
     try
       for LColumn := 0 to System.Pred(Result.Height) do
@@ -1210,7 +1159,7 @@ begin
 end;
 {$ENDIF FMX}
 
-function TQrCode.ToBmpImage(AScale, ABorder: Int32): TBitmap;
+function TQrCode.ToBmpImage(AScale, ABorder: Int32): TQRCodeGenLibBitmap;
 begin
   ValidateImageDimensions(AScale, ABorder);
 {$IF DEFINED(LCL)}
@@ -1225,12 +1174,12 @@ begin
 end;
 {$IFNDEF FMX}
 
-function TQrCode.ToJpegImage(AScale, ABorder: Int32): TJPEGImage;
+function TQrCode.ToJpegImage(AScale, ABorder: Int32): TQRCodeGenLibJPEGImage;
 var
-  LBitmap: TBitmap;
+  LBitmap: TQRCodeGenLibBitmap;
 begin
   LBitmap := ToBmpImage(AScale, ABorder);
-  Result := TJPEGImage.Create;
+  Result := TQRCodeGenLibJPEGImage.Create;
   Result.CompressionQuality := 99;
   try
     Result.Assign(LBitmap);
@@ -1239,13 +1188,12 @@ begin
   end;
 end;
 
-function TQrCode.ToPngImage(AScale, ABorder: Int32):
-{$IFDEF FPC}TPortableNetworkGraphic{$ELSE}TPngImage{$ENDIF FPC};
+function TQrCode.ToPngImage(AScale, ABorder: Int32): TQRCodeGenLibPNGImage;
 var
-  LBitmap: TBitmap;
+  LBitmap: TQRCodeGenLibBitmap;
 begin
   LBitmap := ToBmpImage(AScale, ABorder);
-  Result := {$IFDEF FPC}TPortableNetworkGraphic{$ELSE}TPngImage{$ENDIF FPC}.Create;
+  Result := TQRCodeGenLibPNGImage.Create;
   try
     Result.Assign(LBitmap);
   finally
@@ -1266,13 +1214,10 @@ begin
     raise EArgumentInvalidQRCodeGenLibException.CreateRes(@SBorderNegative);
   end;
   LBorder := ABorder;
-{$IFNDEF FMX}
-  LForegroundColor := TColorToHTMLColorHex(FForegroundColor);
-  LBackgroundColor := TColorToHTMLColorHex(FBackgroundColor);
-{$ELSE}
-  LForegroundColor := TAlphaColorToHTMLColorHex(FForegroundColor);
-  LBackgroundColor := TAlphaColorToHTMLColorHex(FBackgroundColor);
-{$ENDIF FMX}
+
+  LForegroundColor := TConverters.ColorToHTMLColorHex(FForegroundColor);
+  LBackgroundColor := TConverters.ColorToHTMLColorHex(FBackgroundColor);
+
   LStringList := TStringList.Create;
   LStringList.LineBreak := '';
   try
@@ -1528,65 +1473,24 @@ begin
   Result := EncodeSegments(TQrSegment.MakeSegments(AText, AEncoding), AEcl);
 end;
 
-function TQrCode.GetBackgroundColor:
-{$IFNDEF FMX}TColor{$ELSE}TAlphaColor{$ENDIF FMX};
+function TQrCode.GetBackgroundColor: TQRCodeGenLibColor;
 begin
   Result := FBackgroundColor;
 end;
 
-function TQrCode.GetForegroundColor:
-{$IFNDEF FMX}TColor{$ELSE}TAlphaColor{$ENDIF FMX};
+function TQrCode.GetForegroundColor: TQRCodeGenLibColor;
 begin
   Result := FForegroundColor;
 end;
 
-procedure TQrCode.SetBackgroundColor(const AColor:
-{$IFNDEF FMX}TColor{$ELSE}TAlphaColor{$ENDIF FMX});
+procedure TQrCode.SetBackgroundColor(const AColor: TQRCodeGenLibColor);
 begin
   FBackgroundColor := AColor;
 end;
 
-procedure TQrCode.SetForegroundColor(const AColor:
-{$IFNDEF FMX}TColor{$ELSE}TAlphaColor{$ENDIF FMX});
+procedure TQrCode.SetForegroundColor(const AColor: TQRCodeGenLibColor);
 begin
   FForegroundColor := AColor;
-end;
-
-{ TQrCode.TEccHelper }
-
-function TQrCode.TEccHelper.GetFormatBits: Int32;
-begin
-  Result := Ord(Self);
-end;
-
-function TQrCode.TEccHelper.GetToInt32: Int32;
-begin
-  case Self of
-    TQrCode.TEcc.eccLow:
-      begin
-        Result := 0;
-        Exit;
-      end;
-    TQrCode.TEcc.eccMedium:
-      begin
-        Result := 1;
-        Exit;
-      end;
-    TQrCode.TEcc.eccQuartile:
-      begin
-        Result := 2;
-        Exit;
-      end;
-    TQrCode.TEcc.eccHigh:
-      begin
-        Result := 3;
-        Exit;
-      end
-  else
-    begin
-      raise EInvalidOperationQRCodeGenLibException.CreateRes(@SInvalidState);
-    end;
-  end;
 end;
 
 end.

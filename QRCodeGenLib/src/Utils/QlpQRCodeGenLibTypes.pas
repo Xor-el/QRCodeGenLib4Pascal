@@ -5,6 +5,18 @@ unit QlpQRCodeGenLibTypes;
 interface
 
 uses
+{$IF DEFINED(VCL)}
+  Vcl.Graphics,
+  Vcl.Imaging.jpeg, // for VCL JPEG Support
+  Vcl.Imaging.pngimage, // for VCL PNG Support
+{$ELSEIF DEFINED(FMX)}
+  FMX.Graphics,
+  UIConsts,
+  UITypes,
+{$ELSEIF DEFINED(LCL)}
+  Graphics,
+  Interfaces, // Added so that the LCL will Initialize the WidgetSet
+{$IFEND}
   SysUtils;
 
 type
@@ -82,6 +94,24 @@ type
   TQRCodeGenLibMatrixInt32Array = array of TQRCodeGenLibInt32Array;
 
 {$ENDIF DELPHIXE_UP}
+  TQRCodeGenLibColor = {$IFNDEF FMX}TColor{$ELSE}TAlphaColor{$ENDIF FMX};
+  TQRCodeGenLibBitmap = TBitmap;
+{$IFNDEF FMX}
+  TQRCodeGenLibPNGImage =
+{$IFDEF FPC}TPortableNetworkGraphic{$ELSE}TPngImage{$ENDIF FPC};
+  TQRCodeGenLibJPEGImage = TJPEGImage;
+{$ELSE}
+  TQRCodeGenLibBitmapData = TBitmapData;
+  TQRCodeGenLibMapAccess = TMapAccess;
+{$ENDIF FMX}
+
+const
+  QRCodeGenLibWhiteColor = {$IFNDEF FMX}clWhite{$ELSE}claWhite{$ENDIF FMX};
+  QRCodeGenLibBlackColor = {$IFNDEF FMX}clBlack{$ELSE}claBlack{$ENDIF FMX};
+
+{$IFDEF VCL}
+  TwentyFourBitPixelFormat = pf24bit;
+{$ENDIF VCL}
 
 implementation
 
