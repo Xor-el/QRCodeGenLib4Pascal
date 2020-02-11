@@ -217,7 +217,7 @@ begin
   R := StrToInt('$' + System.Copy(AHTMLHexColor, 1, 2));
   G := StrToInt('$' + System.Copy(AHTMLHexColor, 3, 2));
   B := StrToInt('$' + System.Copy(AHTMLHexColor, 5, 2));
-  result := FPColor(R shl 8, G shl 8, B shl 8);
+  result := FPColor((R shl 8) + R, (G shl 8) + G, (B shl 8) + B);
 end;
 
 {$IFEND VCL_OR_LCL}
