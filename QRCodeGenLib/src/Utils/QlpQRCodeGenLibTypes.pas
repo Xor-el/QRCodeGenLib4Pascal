@@ -17,7 +17,7 @@ uses
   Graphics,
   Interfaces, // Added so that the LCL will Initialize the WidgetSet
 {$ELSEIF DEFINED(FCL)}
-  FPWriteBMP,
+  FPWriteBMP, // without this, writing to bitmap will fail
   FPImage, // For FCL Image Support
 {$IFEND}
   SysUtils;

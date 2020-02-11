@@ -8,12 +8,9 @@ uses
 {$IF DEFINED(VCL)}
   Vcl.Graphics,
 {$ELSEIF DEFINED(FMX)}
-  FMX.Graphics,
-  UIConsts,
   UITypes,
 {$ELSEIF DEFINED(LCL)}
   Graphics,
-  Interfaces, // Added so that the LCL will Initialize the WidgetSet
 {$ELSEIF DEFINED(FCL)}
   FPImage, // For FCL Image Support
 {$IFEND}
