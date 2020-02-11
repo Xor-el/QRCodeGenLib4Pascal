@@ -75,63 +75,6 @@ type
     /// </remarks>
     function ToBitmapImage(AScale, ABorder: Int32): TQRCodeGenLibBitmap;
 
-{$IF DEFINED(VCL_OR_LCL)}
-    /// <summary>
-    /// Returns a jpeg image depicting this QR Code, with the specified
-    /// module scale and border modules. For example, ToJpegImage(scale=10,
-    /// border=4) means to pad the QR Code with 4 white border modules on all
-    /// four sides, and use 10×10 pixels to represent each module. The
-    /// resulting image contains the colors specified by the backgroundcolor
-    /// (by default = FFFFFF) and foregroundcolor (by default = 000000)
-    /// properties.
-    /// </summary>
-    /// <param name="AScale">
-    /// the side length (measured in pixels, must be positive) of each module
-    /// </param>
-    /// <param name="ABorder">
-    /// the number of border modules to add, which must be non-negative
-    /// </param>
-    /// <returns>
-    /// a new jpeg image representing this QR Code, with padding and scaling
-    /// </returns>
-    /// <exception cref="QlpQRCodeGenLibTypes|EArgumentOutOfRangeQRCodeGenLibException">
-    /// if the scale or border is out of range, or if <br />{AScale, ABorder,
-    /// FSize} cause the image dimensions to exceed System.High(Int32)
-    /// </exception>
-    /// <remarks>
-    /// <b>The caller is responsible for the lifetime of the returned image
-    /// object.</b>
-    /// </remarks>
-    function ToJpegImage(AScale, ABorder: Int32): TQRCodeGenLibJPEGImage;
-
-    /// <summary>
-    /// Returns a png image depicting this QR Code, with the specified
-    /// module scale and border modules. For example, ToPngImage(scale=10,
-    /// border=4) means to pad the QR Code with 4 white border modules on all
-    /// four sides, and use 10×10 pixels to represent each module. The
-    /// resulting image contains the colors specified by the backgroundcolor
-    /// (by default = FFFFFF) and foregroundcolor (by default = 000000)
-    /// properties.
-    /// </summary>
-    /// <param name="AScale">
-    /// the side length (measured in pixels, must be positive) of each module
-    /// </param>
-    /// <param name="ABorder">
-    /// the number of border modules to add, which must be non-negative
-    /// </param>
-    /// <returns>
-    /// a new png image representing this QR Code, with padding and scaling
-    /// </returns>
-    /// <exception cref="QlpQRCodeGenLibTypes|EArgumentOutOfRangeQRCodeGenLibException">
-    /// if the scale or border is out of range, or if <br />{AScale, ABorder,
-    /// FSize} cause the image dimensions to exceed System.High(Int32)
-    /// </exception>
-    /// <remarks>
-    /// <b>The caller is responsible for the lifetime of the returned image
-    /// object.</b>
-    /// </remarks>
-    function ToPngImage(AScale, ABorder: Int32): TQRCodeGenLibPNGImage;
-{$IFEND VCL_OR_LCL}
     /// <summary>
     /// Returns a string of SVG code for an image depicting this QR Code,
     /// with the specified number of border modules. The string always uses

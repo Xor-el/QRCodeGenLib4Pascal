@@ -7,8 +7,6 @@ interface
 uses
 {$IF DEFINED(VCL)}
   Vcl.Graphics,
-  Vcl.Imaging.jpeg, // for VCL JPEG Support
-  Vcl.Imaging.pngimage, // for VCL PNG Support
 {$ELSEIF DEFINED(FMX)}
   FMX.Graphics,
   UIConsts,
@@ -103,15 +101,12 @@ type
   TQRCodeGenLibBitmap = TFPCompactImgRGB16Bit;
 {$ELSE}
   TQRCodeGenLibBitmap = TBitmap;
-{$IFNDEF FMX}
-  TQRCodeGenLibJPEGImage = TJPEGImage;
-  TQRCodeGenLibPNGImage =
-{$IFDEF LCL}TPortableNetworkGraphic{$ELSE}TPngImage{$ENDIF LCL};
-{$ELSE}
+{$IFDEF FMX}
   TQRCodeGenLibBitmapData = TBitmapData;
   TQRCodeGenLibMapAccess = TMapAccess;
 {$ENDIF FMX}
 {$ENDIF FCL}
+  // ===========//
 {$IFDEF VCL}
 
 const
