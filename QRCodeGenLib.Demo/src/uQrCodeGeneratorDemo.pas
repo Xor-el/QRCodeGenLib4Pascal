@@ -10,13 +10,6 @@ interface
 
 uses
   SysUtils,
-{$IFDEF DELPHI}
-  Vcl.Graphics,
-  Vcl.Imaging.jpeg, // for VCL JPEG Support
-  Vcl.Imaging.pngimage, // for VCL PNG Support
-{$ELSE}
-  Graphics,
-{$ENDIF DELPHI}
   QlpIQrCode,
   QlpQrCode,
   QlpIQrSegment,
@@ -29,9 +22,6 @@ uses
 type
   TQrCodeGeneratorDemo = class sealed(TObject)
   strict private
-    class function RGB(Ar, Ag, Ab: Byte): TColor; inline;
-    class function HTMLColorToTColor(const AHTMLColorHex: String)
-      : TColor; inline;
     class procedure WriteQrCodeToFile(const AQrCode: IQrCode;
       AScale, ABorder: Int32; const AFileName: String);
 
@@ -53,25 +43,6 @@ type
 implementation
 
 { TQrCodeGeneratorDemo }
-
-class function TQrCodeGeneratorDemo.RGB(Ar, Ag, Ab: Byte): TColor;
-begin
-  Result := (Ar or (Ag shl 8) or (Ab shl 16));
-end;
-
-class function TQrCodeGeneratorDemo.HTMLColorToTColor(const AHTMLColorHex
-  : String): TColor;
-var
-  Lr, Lg, Lb: Byte;
-begin
-{$IFDEF DEBUG}
-  System.Assert(System.Length(AHTMLColorHex) = 6);
-{$ENDIF DEBUG}
-  Lr := StrToInt('$' + System.Copy(AHTMLColorHex, 1, 2));
-  Lg := StrToInt('$' + System.Copy(AHTMLColorHex, 3, 2));
-  Lb := StrToInt('$' + System.Copy(AHTMLColorHex, 5, 2));
-  Result := TColor(RGB(Lr, Lg, Lb));
-end;
 
 class procedure TQrCodeGeneratorDemo.DoBasicDemo;
 var
@@ -100,8 +71,10 @@ begin
   LErrCorLvl := TQrCode.TEcc.eccLow; // Error correction level
   // Make the QR Code symbol
   LQrCode := TQrCode.EncodeText(LText, LErrCorLvl, LEncoding);
-  LQrCode.BackgroundColor := HTMLColorToTColor('FFA500');
-  LQrCode.ForegroundColor := HTMLColorToTColor('000000');
+  LQrCode.BackgroundColor := TConverters.HTMLHexColorToQRCodeGenLibColor
+    ('FFA500');
+  LQrCode.ForegroundColor := TConverters.HTMLHexColorToQRCodeGenLibColor
+    ('000000');
   WriteQrCodeToFile(LQrCode, 10, 4, 'hello-world-orange-background-QR');
 end;
 
@@ -241,7 +214,6 @@ begin
     + 'a White Rabbit with pink eyes ran close by her.',
     TQrCode.TEcc.eccQuartile, LEncoding);
   WriteQrCodeToFile(LQrCode, 6, 10, 'alice-wonderland-QR');
-
 end;
 
 class procedure TQrCodeGeneratorDemo.RunAllDemos;
@@ -272,9 +244,11 @@ const
   FolderName: String = 'Assets';
 var
   LFilePath: String;
-  LBitmap: TBitmap;
-  LJpeg: TJPEGImage;
-  LPng: {$IFDEF FPC}TPortableNetworkGraphic{$ELSE}TPngImage{$ENDIF FPC};
+  LBitmap: TQRCodeGenLibBitmap;
+{$IF DEFINED(VCL_OR_LCL)}
+  LJpeg: TQRCodeGenLibJPEGImage;
+  LPng: TQRCodeGenLibPNGImage;
+{$IFEND VCL_OR_LCL}
 begin
   LFilePath := ExtractFilePath(ParamStr(0));
   LFilePath := IncludeTrailingPathDelimiter(LFilePath);
@@ -293,26 +267,16 @@ begin
   LFilePath := LFilePath + AFileName;
   // create bmp
   LBitmap := AQrCode.ToBmpImage(AScale, ABorder);
-  // create jpeg
-  LJpeg := AQrCode.ToJpegImage(AScale, ABorder);
-  // create png
-  LPng := AQrCode.ToPngImage(AScale, ABorder);
   try
     try
       // save bmp
       LBitmap.SaveToFile(LFilePath + '.bmp');
-      // save jpg
-      LJpeg.SaveToFile(LFilePath + '.jpg');
-      // save png
-      LPng.SaveToFile(LFilePath + '.png');
       AQrCode.ToSvgFile(ABorder, LFilePath + '.svg');
     except
       raise;
     end;
   finally
     LBitmap.Free;
-    LJpeg.Free;
-    LPng.Free;
   end;
 end;
 

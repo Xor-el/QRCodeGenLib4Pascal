@@ -20,8 +20,6 @@ uses
 type
   TQrCodeGeneratorDemoFMX = class sealed(TObject)
   strict private
-    class function HTMLColorToTAlphaColor(const AHTMLColorHex: String)
-      : TAlphaColor; inline;
     class procedure WriteQrCodeToFile(const AQrCode: IQrCode;
       AScale, ABorder: Int32; const AFileName: String);
 
@@ -46,25 +44,6 @@ uses
   QrCodeGeneratorDemoFMXForm;
 
 { TQrCodeGeneratorDemo }
-
-class function TQrCodeGeneratorDemoFMX.HTMLColorToTAlphaColor
-  (const AHTMLColorHex: String): TAlphaColor;
-var
-  Lr, Lg, Lb: Byte;
-  rec: TAlphaColorRec;
-begin
-{$IFDEF DEBUG}
-  System.Assert(System.Length(AHTMLColorHex) = 6);
-{$ENDIF DEBUG}
-  Lr := StrToInt('$' + System.Copy(AHTMLColorHex, 1, 2));
-  Lg := StrToInt('$' + System.Copy(AHTMLColorHex, 3, 2));
-  Lb := StrToInt('$' + System.Copy(AHTMLColorHex, 5, 2));
-  rec.A := $FF; // for transparency
-  rec.R := Lr;
-  rec.G := Lg;
-  rec.B := Lb;
-  Result := rec.Color;
-end;
 
 class procedure TQrCodeGeneratorDemoFMX.DoBasicDemo;
 var
@@ -93,8 +72,10 @@ begin
   LErrCorLvl := TQrCode.TEcc.eccLow; // Error correction level
   // Make the QR Code symbol
   LQrCode := TQrCode.EncodeText(LText, LErrCorLvl, LEncoding);
-  LQrCode.BackgroundColor := HTMLColorToTAlphaColor('FFA500');
-  LQrCode.ForegroundColor := HTMLColorToTAlphaColor('000000');
+  LQrCode.BackgroundColor := TConverters.HTMLHexColorToQRCodeGenLibColor
+    ('FFA500');
+  LQrCode.ForegroundColor := TConverters.HTMLHexColorToQRCodeGenLibColor
+    ('000000');
   WriteQrCodeToFile(LQrCode, 10, 4, 'hello-world-orange-background-QR');
 end;
 
