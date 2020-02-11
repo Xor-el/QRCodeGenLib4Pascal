@@ -49,6 +49,18 @@
    {$OPTIMIZATION USERBP}
 {$ENDIF}
 
+{$DEFINE Framework_FCL} // enable to force FCL mode
+{$IFDEF Framework_FCL}
+   {$UNDEF LCL}
+   {$DEFINE FCL}
+{$ELSE}
+   {$DEFINE LCL}
+{$ENDIF}
+
+{$IFDEF LCL}
+   {$DEFINE VCL_OR_LCL}
+{$ENDIF LCL}
+
 {$ENDIF FPC}
 
 (* &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& *)
@@ -93,10 +105,15 @@
 
 {.$DEFINE Framework_FMX} // enable to force FMX mode
 {$IFDEF Framework_FMX}
+   {$UNDEF VCL}
    {$DEFINE FMX}
 {$ELSE}
    {$DEFINE VCL}
 {$ENDIF}
+
+{$IFDEF VCL}
+   {$DEFINE VCL_OR_LCL}
+{$ENDIF VCL}
 
 {$ENDIF DELPHI}
 

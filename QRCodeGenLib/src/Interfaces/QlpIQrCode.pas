@@ -75,7 +75,7 @@ type
     /// </remarks>
     function ToBmpImage(AScale, ABorder: Int32): TQRCodeGenLibBitmap;
 
-{$IFNDEF FMX}
+{$IF DEFINED(VCL_OR_LCL)}
     /// <summary>
     /// Returns a jpeg image depicting this QR Code, with the specified
     /// module scale and border modules. For example, ToJpegImage(scale=10,
@@ -131,7 +131,7 @@ type
     /// object.</b>
     /// </remarks>
     function ToPngImage(AScale, ABorder: Int32): TQRCodeGenLibPNGImage;
-{$ENDIF FMX}
+{$IFEND VCL_OR_LCL}
     /// <summary>
     /// Returns a string of SVG code for an image depicting this QR Code,
     /// with the specified number of border modules. The string always uses

@@ -16,6 +16,9 @@ uses
 {$ELSEIF DEFINED(LCL)}
   Graphics,
   Interfaces, // Added so that the LCL will Initialize the WidgetSet
+{$ELSEIF DEFINED(FCL)}
+  FPWriteBMP,
+  FPImage, // For FCL Image Support
 {$IFEND}
   SysUtils;
 
@@ -94,26 +97,40 @@ type
   TQRCodeGenLibMatrixInt32Array = array of TQRCodeGenLibInt32Array;
 
 {$ENDIF DELPHIXE_UP}
-  TQRCodeGenLibColor = {$IFNDEF FMX}TColor{$ELSE}TAlphaColor{$ENDIF FMX};
+  TQRCodeGenLibColor =
+{$IF DEFINED(VCL_OR_LCL)}TColor{$ELSEIF DEFINED(FCL)}TFPColor{$ELSEIF DEFINED(FMX)}TAlphaColor{$IFEND VCL_OR_LCL};
+{$IFDEF FCL}
+  TQRCodeGenLibBitmap = TFPCompactImgRGB16Bit;
+{$ELSE}
   TQRCodeGenLibBitmap = TBitmap;
 {$IFNDEF FMX}
-  TQRCodeGenLibPNGImage =
-{$IFDEF FPC}TPortableNetworkGraphic{$ELSE}TPngImage{$ENDIF FPC};
   TQRCodeGenLibJPEGImage = TJPEGImage;
+  TQRCodeGenLibPNGImage =
+{$IFDEF LCL}TPortableNetworkGraphic{$ELSE}TPngImage{$ENDIF LCL};
 {$ELSE}
   TQRCodeGenLibBitmapData = TBitmapData;
   TQRCodeGenLibMapAccess = TMapAccess;
 {$ENDIF FMX}
+{$ENDIF FCL}
+{$IFDEF VCL}
 
 const
-  QRCodeGenLibWhiteColor = {$IFNDEF FMX}clWhite{$ELSE}claWhite{$ENDIF FMX};
-  QRCodeGenLibBlackColor = {$IFNDEF FMX}clBlack{$ELSE}claBlack{$ENDIF FMX};
-
-{$IFDEF VCL}
   TwentyFourBitPixelFormat = pf24bit;
 {$ENDIF VCL}
+function QRCodeGenLibWhiteColor: TQRCodeGenLibColor; inline;
+function QRCodeGenLibBlackColor: TQRCodeGenLibColor; inline;
 
 implementation
+
+function QRCodeGenLibWhiteColor: TQRCodeGenLibColor;
+begin
+  Result := {$IF DEFINED(VCL_OR_LCL)}clWhite{$ELSEIF DEFINED(FCL)}colWhite{$ELSEIF DEFINED(FMX)}claWhite{$IFEND VCL_OR_LCL};
+end;
+
+function QRCodeGenLibBlackColor: TQRCodeGenLibColor;
+begin
+  Result := {$IF DEFINED(VCL_OR_LCL)}clBlack{$ELSEIF DEFINED(FCL)}colBlack{$ELSEIF DEFINED(FMX)}claBlack{$IFEND VCL_OR_LCL};
+end;
 
 {$IFDEF FPC}
 

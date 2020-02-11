@@ -14,6 +14,8 @@ uses
 {$ELSEIF DEFINED(LCL)}
   Graphics,
   Interfaces, // Added so that the LCL will Initialize the WidgetSet
+{$ELSEIF DEFINED(FCL)}
+  FPImage, // For FCL Image Support
 {$IFEND}
   SysUtils,
   QlpGuard,
@@ -26,7 +28,7 @@ type
   TConverters = class sealed(TObject)
 
   strict private
-{$IFNDEF FMX}
+{$IF DEFINED(VCL_OR_LCL)}
     /// <summary>
     /// Convert a Delphi/Lazarus <c>TColor</c> to <c>HTML</c> Color code in
     /// Hex <c>.</c>
@@ -41,7 +43,10 @@ type
     class function TColorToHTMLColorHex(const AColor: TQRCodeGenLibColor)
       : String; inline;
 
-{$ELSE}
+    class function HTMLColorHexToTColor(const AHTMLHexColor: String)
+      : TQRCodeGenLibColor; inline;
+
+{$ELSEIF DEFINED(FMX)}
     /// <summary>
     /// Convert a Delphi FireMonkey <c>TAlphaColor</c> to <c>HTML</c> Color code in
     /// Hex <c>.</c>
@@ -56,22 +61,46 @@ type
     class function TAlphaColorToHTMLColorHex(const AColor: TQRCodeGenLibColor)
       : String; inline;
 
-{$ENDIF FMX}
+    class function HTMLColorHexToTAlphaColor(const AHTMLHexColor: String)
+      : TQRCodeGenLibColor; inline;
+
+{$ELSEIF DEFINED(FCL)}
+    /// <summary>
+    /// Convert an FPC <c>TFPColor</c> to <c>HTML</c> Color code in
+    /// Hex <c>.</c>
+    /// </summary>
+    /// <param name="AColor">
+    /// the <c>TFPColor</c> to convert
+    /// </param>
+    /// <returns>
+    /// returns a string containing the <c>HTML</c> Color code representation
+    /// of the <c>TColor</c> parameter in Hex
+    /// </returns>
+    class function TFPColorToHTMLColorHex(const AColor: TQRCodeGenLibColor)
+      : String; inline;
+
+    class function HTMLColorHexToTFPColor(const AHTMLHexColor: String)
+      : TQRCodeGenLibColor; inline;
+{$IFEND VCL_OR_LCL}
   public
 
-{$IFNDEF FMX}
+{$IFDEF VCL_OR_LCL}
     class function GetRValue(Argb: UInt32): Byte; static; inline;
     class function GetGValue(Argb: UInt32): Byte; static; inline;
     class function GetBValue(Argb: UInt32): Byte; static; inline;
-{$ENDIF FMX}
+    class function RGB(Ar, Ag, Ab: Byte): TQRCodeGenLibColor; static; inline;
+{$ENDIF VCL_OR_LCL}
     class function ConvertStringToBytes(const AInput: String;
       const AEncoding: TEncoding): TQRCodeGenLibByteArray; static;
 
     class function ConvertBytesToString(const AInput: TQRCodeGenLibByteArray;
       const AEncoding: TEncoding): String; static;
 
-    class function ColorToHTMLColorHex(const AColor: TQRCodeGenLibColor)
-      : String; inline;
+    class function QRCodeGenLibColorToHTMLHexColor(const AColor
+      : TQRCodeGenLibColor): String; inline;
+
+    class function HTMLHexColorToQRCodeGenLibColor(const AHTMLHexColor: String)
+      : TQRCodeGenLibColor; inline;
   end;
 
 implementation
@@ -100,7 +129,7 @@ begin
 {$ENDIF FPC}
 end;
 
-{$IFNDEF FMX}
+{$IF DEFINED(VCL_OR_LCL)}
 
 class function TConverters.GetRValue(Argb: UInt32): Byte;
 begin
@@ -117,6 +146,11 @@ begin
   result := Byte(Argb shr 16);
 end;
 
+class function TConverters.RGB(Ar, Ag, Ab: Byte): TQRCodeGenLibColor;
+begin
+  result := (Ar or (Ag shl 8) or (Ab shl 16));
+end;
+
 class function TConverters.TColorToHTMLColorHex(const AColor
   : TQRCodeGenLibColor): String;
 begin
@@ -124,7 +158,21 @@ begin
     GetGValue(ColorToRGB(AColor)), GetBValue(ColorToRGB(AColor))]);
 end;
 
-{$ELSE}
+class function TConverters.HTMLColorHexToTColor(const AHTMLHexColor: String)
+  : TQRCodeGenLibColor;
+var
+  R, G, B: Byte;
+begin
+{$IFDEF DEBUG}
+  System.Assert(System.Length(AHTMLHexColor) = 6);
+{$ENDIF DEBUG}
+  R := StrToInt('$' + System.Copy(AHTMLHexColor, 1, 2));
+  G := StrToInt('$' + System.Copy(AHTMLHexColor, 3, 2));
+  B := StrToInt('$' + System.Copy(AHTMLHexColor, 5, 2));
+  result := TQRCodeGenLibColor(RGB(R, G, B));
+end;
+
+{$ELSEIF DEFINED(FMX)}
 
 class function TConverters.TAlphaColorToHTMLColorHex(const AColor
   : TQRCodeGenLibColor): String;
@@ -133,16 +181,72 @@ begin
     TAlphaColorRec(AColor).G, TAlphaColorRec(AColor).B]);
 end;
 
-{$ENDIF FMX}
+class function TConverters.HTMLColorHexToTAlphaColor(const AHTMLHexColor
+  : String): TQRCodeGenLibColor;
+var
+  R, G, B: Byte;
+  rec: TAlphaColorRec;
+begin
+{$IFDEF DEBUG}
+  System.Assert(System.Length(AHTMLHexColor) = 6);
+{$ENDIF DEBUG}
+  R := StrToInt('$' + System.Copy(AHTMLHexColor, 1, 2));
+  G := StrToInt('$' + System.Copy(AHTMLHexColor, 3, 2));
+  B := StrToInt('$' + System.Copy(AHTMLHexColor, 5, 2));
+  rec.A := $FF; // for transparency
+  rec.R := R;
+  rec.G := G;
+  rec.B := B;
+  result := rec.Color;
+end;
 
-class function TConverters.ColorToHTMLColorHex(const AColor
+{$ELSEIF DEFINED(FCL)}
+
+class function TConverters.TFPColorToHTMLColorHex(const AColor
   : TQRCodeGenLibColor): String;
 begin
-{$IFNDEF FMX}
+  result := Format('%.2x%.2x%.2x', [AColor.Red shr 8, AColor.Green shr 8,
+    AColor.Blue shr 8]);
+end;
+
+class function TConverters.HTMLColorHexToTFPColor(const AHTMLHexColor: String)
+  : TQRCodeGenLibColor;
+var
+  R, G, B: Byte;
+begin
+{$IFDEF DEBUG}
+  System.Assert(System.Length(AHTMLHexColor) = 6);
+{$ENDIF DEBUG}
+  R := StrToInt('$' + System.Copy(AHTMLHexColor, 1, 2));
+  G := StrToInt('$' + System.Copy(AHTMLHexColor, 3, 2));
+  B := StrToInt('$' + System.Copy(AHTMLHexColor, 5, 2));
+  result := FPColor(R shl 8, G shl 8, B shl 8);
+end;
+
+{$IFEND VCL_OR_LCL}
+
+class function TConverters.QRCodeGenLibColorToHTMLHexColor
+  (const AColor: TQRCodeGenLibColor): String;
+begin
+{$IF DEFINED(VCL_OR_LCL)}
   result := TConverters.TColorToHTMLColorHex(AColor);
-{$ELSE}
+{$ELSEIF DEFINED(FMX)}
   result := TConverters.TAlphaColorToHTMLColorHex(AColor);
-{$ENDIF FMX}
+{$ELSEIF DEFINED(FCL)}
+  result := TConverters.TFPColorToHTMLColorHex(AColor);
+{$IFEND VCL_OR_LCL}
+end;
+
+class function TConverters.HTMLHexColorToQRCodeGenLibColor(const AHTMLHexColor
+  : String): TQRCodeGenLibColor;
+begin
+{$IF DEFINED(VCL_OR_LCL)}
+  result := TConverters.HTMLColorHexToTColor(AHTMLHexColor);
+{$ELSEIF DEFINED(FMX)}
+  result := TConverters.HTMLColorHexToTAlphaColor(AHTMLHexColor);
+{$ELSEIF DEFINED(FCL)}
+  result := TConverters.HTMLColorHexToTFPColor(AHTMLHexColor);
+{$IFEND VCL_OR_LCL}
 end;
 
 end.

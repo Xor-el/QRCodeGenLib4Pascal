@@ -186,6 +186,9 @@ type
 {$IFDEF LCL}
     function ToBmpImageInternalLCL(AScale, ABorder: Int32): TQRCodeGenLibBitmap;
 {$ENDIF LCL}
+{$IFDEF FCL}
+    function ToBmpImageInternalFCL(AScale, ABorder: Int32): TQRCodeGenLibBitmap;
+{$ENDIF FCL}
 {$IFDEF VCL}
     function ToBmpImageInternalVCL(AScale, ABorder: Int32): TQRCodeGenLibBitmap;
 {$ENDIF VCL}
@@ -328,7 +331,7 @@ type
     /// </remarks>
     function ToBmpImage(AScale, ABorder: Int32): TQRCodeGenLibBitmap;
 
-{$IFNDEF FMX}
+{$IF DEFINED(VCL_OR_LCL)}
     /// <summary>
     /// Returns a jpeg image depicting this QR Code, with the specified
     /// module scale and border modules. For example, ToJpegImage(scale=10,
@@ -384,7 +387,7 @@ type
     /// object.</b>
     /// </remarks>
     function ToPngImage(AScale, ABorder: Int32): TQRCodeGenLibPNGImage;
-{$ENDIF FMX}
+{$IFEND VCL_OR_LCL}
     /// <summary>
     /// Returns a string of SVG code for an image depicting this QR Code,
     /// with the specified number of border modules. The string always uses
@@ -1060,6 +1063,43 @@ begin
   end;
 end;
 {$ENDIF LCL}
+{$IFDEF FCL}
+
+function TQrCode.ToBmpImageInternalFCL(AScale, ABorder: Int32)
+  : TQRCodeGenLibBitmap;
+var
+  LColumn, LRow: Int32;
+  LDoColor: Boolean;
+  LBrushColor, LForegroundColor, LBackgroundColor: TQRCodeGenLibColor;
+begin
+  Result := TQRCodeGenLibBitmap.Create((FSize + (ABorder * 2)) * AScale,
+    (FSize + (ABorder * 2)) * AScale);
+
+  Result.UsePalette := True;
+
+  LForegroundColor := FForegroundColor;
+  LBackgroundColor := FBackgroundColor;
+
+  for LColumn := 0 to System.Pred(Result.Height) do
+  begin
+    for LRow := 0 to System.Pred(Result.Width) do
+    begin
+      LDoColor := GetModule((LRow div AScale) - ABorder,
+        (LColumn div AScale) - ABorder);
+      if LDoColor then
+      begin
+        LBrushColor := LForegroundColor;
+      end
+      else
+      begin
+        LBrushColor := LBackgroundColor;
+      end;
+      Result.Colors[LRow, LColumn] := LBrushColor;
+    end;
+
+  end;
+end;
+{$ENDIF FCL}
 {$IFDEF VCL}
 
 function TQrCode.ToBmpImageInternalVCL(AScale, ABorder: Int32)
@@ -1164,15 +1204,18 @@ begin
   ValidateImageDimensions(AScale, ABorder);
 {$IF DEFINED(LCL)}
   Result := ToBmpImageInternalLCL(AScale, ABorder);
+{$ELSEIF DEFINED(FCL)}
+  Result := ToBmpImageInternalFCL(AScale, ABorder);
 {$ELSEIF DEFINED(VCL)}
   Result := ToBmpImageInternalVCL(AScale, ABorder);
 {$ELSEIF DEFINED(FMX)}
   Result := ToBmpImageInternalFMX(AScale, ABorder);
 {$ELSE}
-{$MESSAGE ERROR 'This UI Framework is not supported at the moment.'}
+{$MESSAGE ERROR 'This Framework is not supported at the moment.'}
 {$IFEND}
 end;
-{$IFNDEF FMX}
+
+{$IF DEFINED(VCL_OR_LCL)}
 
 function TQrCode.ToJpegImage(AScale, ABorder: Int32): TQRCodeGenLibJPEGImage;
 var
@@ -1200,7 +1243,7 @@ begin
     LBitmap.Free;
   end;
 end;
-{$ENDIF FMX}
+{$IFEND VCL_OR_LCL}
 
 function TQrCode.ToSvgString(ABorder: Int32): String;
 var
@@ -1215,8 +1258,8 @@ begin
   end;
   LBorder := ABorder;
 
-  LForegroundColor := TConverters.ColorToHTMLColorHex(FForegroundColor);
-  LBackgroundColor := TConverters.ColorToHTMLColorHex(FBackgroundColor);
+  LForegroundColor := TConverters.QRCodeGenLibColorToHTMLHexColor(FForegroundColor);
+  LBackgroundColor := TConverters.QRCodeGenLibColorToHTMLHexColor(FBackgroundColor);
 
   LStringList := TStringList.Create;
   LStringList.LineBreak := '';
