@@ -49,7 +49,7 @@ type
 
     /// <summary>
     /// Returns a bitmap image depicting this QR Code, with the specified
-    /// module scale and border modules. For example, ToBmpImage(scale=10,
+    /// module scale and border modules. For example, ToBitmapImage(scale=10,
     /// border=4) means to pad the QR Code with 4 white border modules on all
     /// four sides, and use 10×10 pixels to represent each module. The
     /// resulting image contains the colors specified by the backgroundcolor
@@ -73,7 +73,7 @@ type
     /// <b>The caller is responsible for the lifetime of the returned image
     /// object.</b>
     /// </remarks>
-    function ToBmpImage(AScale, ABorder: Int32): TQRCodeGenLibBitmap;
+    function ToBitmapImage(AScale, ABorder: Int32): TQRCodeGenLibBitmap;
 
 {$IF DEFINED(VCL_OR_LCL)}
     /// <summary>

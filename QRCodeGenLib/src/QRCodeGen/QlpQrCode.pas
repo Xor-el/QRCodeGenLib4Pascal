@@ -184,16 +184,16 @@ type
     procedure ValidateImageDimensions(AScale, ABorder: Int32);
 
 {$IFDEF LCL}
-    function ToBmpImageInternalLCL(AScale, ABorder: Int32): TQRCodeGenLibBitmap;
+    function ToBitmapImageInternalLCL(AScale, ABorder: Int32): TQRCodeGenLibBitmap;
 {$ENDIF LCL}
 {$IFDEF FCL}
-    function ToBmpImageInternalFCL(AScale, ABorder: Int32): TQRCodeGenLibBitmap;
+    function ToBitmapImageInternalFCL(AScale, ABorder: Int32): TQRCodeGenLibBitmap;
 {$ENDIF FCL}
 {$IFDEF VCL}
-    function ToBmpImageInternalVCL(AScale, ABorder: Int32): TQRCodeGenLibBitmap;
+    function ToBitmapImageInternalVCL(AScale, ABorder: Int32): TQRCodeGenLibBitmap;
 {$ENDIF VCL}
 {$IFDEF FMX}
-    function ToBmpImageInternalFMX(AScale, ABorder: Int32): TQRCodeGenLibBitmap;
+    function ToBitmapImageInternalFMX(AScale, ABorder: Int32): TQRCodeGenLibBitmap;
 {$ENDIF FMX}
     // Returns the number of 8-bit data (i.e. not error correction) codewords contained in any
     // QR Code of the given version number and error correction level, with remainder bits discarded.
@@ -305,7 +305,7 @@ type
 
     /// <summary>
     /// Returns a bitmap image depicting this QR Code, with the specified
-    /// module scale and border modules. For example, ToBmpImage(scale=10,
+    /// module scale and border modules. For example, ToBitmapImage(scale=10,
     /// border=4) means to pad the QR Code with 4 white border modules on all
     /// four sides, and use 10×10 pixels to represent each module. The
     /// resulting image contains the colors specified by the backgroundcolor
@@ -329,7 +329,7 @@ type
     /// <b>The caller is responsible for the lifetime of the returned image
     /// object.</b>
     /// </remarks>
-    function ToBmpImage(AScale, ABorder: Int32): TQRCodeGenLibBitmap;
+    function ToBitmapImage(AScale, ABorder: Int32): TQRCodeGenLibBitmap;
 
 {$IF DEFINED(VCL_OR_LCL)}
     /// <summary>
@@ -1007,7 +1007,7 @@ end;
 
 {$IFDEF LCL}
 
-function TQrCode.ToBmpImageInternalLCL(AScale, ABorder: Int32)
+function TQrCode.ToBitmapImageInternalLCL(AScale, ABorder: Int32)
   : TQRCodeGenLibBitmap;
 var
   LColumn, LRow: Int32;
@@ -1065,7 +1065,7 @@ end;
 {$ENDIF LCL}
 {$IFDEF FCL}
 
-function TQrCode.ToBmpImageInternalFCL(AScale, ABorder: Int32)
+function TQrCode.ToBitmapImageInternalFCL(AScale, ABorder: Int32)
   : TQRCodeGenLibBitmap;
 var
   LColumn, LRow: Int32;
@@ -1102,7 +1102,7 @@ end;
 {$ENDIF FCL}
 {$IFDEF VCL}
 
-function TQrCode.ToBmpImageInternalVCL(AScale, ABorder: Int32)
+function TQrCode.ToBitmapImageInternalVCL(AScale, ABorder: Int32)
   : TQRCodeGenLibBitmap;
 type
   TRGBTriple = record
@@ -1155,7 +1155,7 @@ end;
 {$ENDIF VCL}
 {$IFDEF FMX}
 
-function TQrCode.ToBmpImageInternalFMX(AScale, ABorder: Int32)
+function TQrCode.ToBitmapImageInternalFMX(AScale, ABorder: Int32)
   : TQRCodeGenLibBitmap;
 var
   LColumn, LRow: Int32;
@@ -1199,17 +1199,17 @@ begin
 end;
 {$ENDIF FMX}
 
-function TQrCode.ToBmpImage(AScale, ABorder: Int32): TQRCodeGenLibBitmap;
+function TQrCode.ToBitmapImage(AScale, ABorder: Int32): TQRCodeGenLibBitmap;
 begin
   ValidateImageDimensions(AScale, ABorder);
 {$IF DEFINED(LCL)}
-  Result := ToBmpImageInternalLCL(AScale, ABorder);
+  Result := ToBitmapImageInternalLCL(AScale, ABorder);
 {$ELSEIF DEFINED(FCL)}
-  Result := ToBmpImageInternalFCL(AScale, ABorder);
+  Result := ToBitmapImageInternalFCL(AScale, ABorder);
 {$ELSEIF DEFINED(VCL)}
-  Result := ToBmpImageInternalVCL(AScale, ABorder);
+  Result := ToBitmapImageInternalVCL(AScale, ABorder);
 {$ELSEIF DEFINED(FMX)}
-  Result := ToBmpImageInternalFMX(AScale, ABorder);
+  Result := ToBitmapImageInternalFMX(AScale, ABorder);
 {$ELSE}
 {$MESSAGE ERROR 'This Framework is not supported at the moment.'}
 {$IFEND}
@@ -1221,7 +1221,7 @@ function TQrCode.ToJpegImage(AScale, ABorder: Int32): TQRCodeGenLibJPEGImage;
 var
   LBitmap: TQRCodeGenLibBitmap;
 begin
-  LBitmap := ToBmpImage(AScale, ABorder);
+  LBitmap := ToBitmapImage(AScale, ABorder);
   Result := TQRCodeGenLibJPEGImage.Create;
   Result.CompressionQuality := 99;
   try
@@ -1235,7 +1235,7 @@ function TQrCode.ToPngImage(AScale, ABorder: Int32): TQRCodeGenLibPNGImage;
 var
   LBitmap: TQRCodeGenLibBitmap;
 begin
-  LBitmap := ToBmpImage(AScale, ABorder);
+  LBitmap := ToBitmapImage(AScale, ABorder);
   Result := TQRCodeGenLibPNGImage.Create;
   try
     Result.Assign(LBitmap);

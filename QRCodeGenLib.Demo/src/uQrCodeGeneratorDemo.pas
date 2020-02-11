@@ -266,7 +266,7 @@ begin
   end;
   LFilePath := LFilePath + AFileName;
   // create bmp
-  LBitmap := AQrCode.ToBmpImage(AScale, ABorder);
+  LBitmap := AQrCode.ToBitmapImage(AScale, ABorder);
   try
     try
       // save bmp

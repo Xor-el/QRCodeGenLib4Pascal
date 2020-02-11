@@ -249,7 +249,7 @@ const
   FolderName: String = 'Assets';
 var
   LFilePath: String;
-  LBitmap: TBitmap;
+  LBitmap: TQRCodeGenLibBitmap;
 begin
 
   LFilePath := TPath.Combine(TPath.GetSharedDocumentsPath, FolderName);
@@ -266,7 +266,7 @@ begin
 
   LFilePath := TPath.Combine(LFilePath, AFileName);
   // create bmp
-  LBitmap := AQrCode.ToBmpImage(AScale, ABorder);
+  LBitmap := AQrCode.ToBitmapImage(AScale, ABorder);
   try
     try
 {$IF DEFINED(MSWINDOWS) OR DEFINED(MACOS)}
