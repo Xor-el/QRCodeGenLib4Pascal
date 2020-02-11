@@ -245,10 +245,6 @@ const
 var
   LFilePath: String;
   LBitmap: TQRCodeGenLibBitmap;
-{$IF DEFINED(VCL_OR_LCL)}
-  LJpeg: TQRCodeGenLibJPEGImage;
-  LPng: TQRCodeGenLibPNGImage;
-{$IFEND VCL_OR_LCL}
 begin
   LFilePath := ExtractFilePath(ParamStr(0));
   LFilePath := IncludeTrailingPathDelimiter(LFilePath);
