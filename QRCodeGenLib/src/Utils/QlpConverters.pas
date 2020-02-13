@@ -5,15 +5,6 @@ unit QlpConverters;
 interface
 
 uses
-{$IF DEFINED(VCL)}
-  Vcl.Graphics,
-{$ELSEIF DEFINED(FMX)}
-  UITypes,
-{$ELSEIF DEFINED(LCL)}
-  Graphics,
-{$ELSEIF DEFINED(FCL)}
-  FPImage, // For FCL Image Support
-{$IFEND}
   SysUtils,
   QlpGuard,
   QlpQRCodeGenLibTypes;
@@ -151,8 +142,9 @@ end;
 class function TConverters.TColorToHTMLColorHex(const AColor
   : TQRCodeGenLibColor): String;
 begin
-  result := Format('%.2x%.2x%.2x', [GetRValue(ColorToRGB(AColor)),
-    GetGValue(ColorToRGB(AColor)), GetBValue(ColorToRGB(AColor))]);
+  result := Format('%.2x%.2x%.2x', [GetRValue(QRCodeGenLibColorToRGB(AColor)),
+    GetGValue(QRCodeGenLibColorToRGB(AColor)),
+    GetBValue(QRCodeGenLibColorToRGB(AColor))]);
 end;
 
 class function TConverters.HTMLColorHexToTColor(const AHTMLHexColor: String)
@@ -174,15 +166,16 @@ end;
 class function TConverters.TAlphaColorToHTMLColorHex(const AColor
   : TQRCodeGenLibColor): String;
 begin
-  result := Format('%.2x%.2x%.2x', [TAlphaColorRec(AColor).R,
-    TAlphaColorRec(AColor).G, TAlphaColorRec(AColor).B]);
+  result := Format('%.2x%.2x%.2x', [TQRCodeGenLibAlphaColorRec(AColor).R,
+    TQRCodeGenLibAlphaColorRec(AColor).G,
+    TQRCodeGenLibAlphaColorRec(AColor).B]);
 end;
 
 class function TConverters.HTMLColorHexToTAlphaColor(const AHTMLHexColor
   : String): TQRCodeGenLibColor;
 var
   R, G, B: Byte;
-  rec: TAlphaColorRec;
+  rec: TQRCodeGenLibAlphaColorRec;
 begin
 {$IFDEF DEBUG}
   System.Assert(System.Length(AHTMLHexColor) = 6);
@@ -217,7 +210,10 @@ begin
   R := StrToInt('$' + System.Copy(AHTMLHexColor, 1, 2));
   G := StrToInt('$' + System.Copy(AHTMLHexColor, 3, 2));
   B := StrToInt('$' + System.Copy(AHTMLHexColor, 5, 2));
-  result := FPColor((R shl 8) + R, (G shl 8) + G, (B shl 8) + B);
+  result.Alpha := $FFFF; // for transparency
+  result.Red := (R shl 8) + R;
+  result.Green := (G shl 8) + G;
+  result.Blue := (B shl 8) + B;
 end;
 
 {$IFEND VCL_OR_LCL}

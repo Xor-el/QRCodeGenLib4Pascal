@@ -104,6 +104,7 @@ type
 {$IFDEF FMX}
   TQRCodeGenLibBitmapData = TBitmapData;
   TQRCodeGenLibMapAccess = TMapAccess;
+  TQRCodeGenLibAlphaColorRec = TAlphaColorRec;
 {$ENDIF FMX}
 {$ENDIF FCL}
   // ===========//
@@ -114,6 +115,9 @@ const
 {$ENDIF VCL}
 function QRCodeGenLibWhiteColor: TQRCodeGenLibColor; inline;
 function QRCodeGenLibBlackColor: TQRCodeGenLibColor; inline;
+{$IF DEFINED(VCL_OR_LCL)}
+function QRCodeGenLibColorToRGB(AColor: TQRCodeGenLibColor): LongInt; inline;
+{$IFEND VCL_OR_LCL}
 
 implementation
 
@@ -127,6 +131,13 @@ begin
   Result := {$IF DEFINED(VCL_OR_LCL)}clBlack{$ELSEIF DEFINED(FCL)}colBlack{$ELSEIF DEFINED(FMX)}claBlack{$IFEND VCL_OR_LCL};
 end;
 
+{$IF DEFINED(VCL_OR_LCL)}
+
+function QRCodeGenLibColorToRGB(AColor: TQRCodeGenLibColor): LongInt;
+begin
+  Result := ColorToRGB(AColor);
+end;
+{$IFEND VCL_OR_LCL}
 {$IFDEF FPC}
 
 initialization
