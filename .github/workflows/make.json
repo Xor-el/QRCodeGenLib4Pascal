@@ -1,0 +1,7 @@
+{
+    "app" : "QRCodeGenLib.Demo",
+    "lib" : "QRCodeGenLib",
+    "tst" : "Tests.lpi",
+    "pkg" : [
+    ]
+}
