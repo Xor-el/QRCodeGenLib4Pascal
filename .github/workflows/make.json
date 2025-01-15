@@ -1,7 +1,0 @@
-{
-    "app" : "QRCodeGenLib",
-    "lib" : "QRCodeGenLib",
-    "tst" : "QRCodeGenLib.Demo/FreePascal.Demo/QrCodeGeneratorDemo.lpi",
-    "pkg" : [
-    ]
-}
