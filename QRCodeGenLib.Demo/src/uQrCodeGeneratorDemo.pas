@@ -236,6 +236,7 @@ begin
 
   WriteLn(sLineBreak);
   WriteLn('Finished Executing All Demos');
+  Exit;
 end;
 
 class procedure TQrCodeGeneratorDemo.WriteQrCodeToFile(const AQrCode: IQrCode;
