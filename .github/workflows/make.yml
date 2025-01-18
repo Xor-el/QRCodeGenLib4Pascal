@@ -56,8 +56,7 @@ jobs:
         & $VAR.OutFile.Replace('Temp', 'Temp\.') /SP- /VERYSILENT /NORESTART `
           /SUPPRESSMSGBOXES | Out-Null
         $Env:PATH+=';C:\Lazarus'
-        (Get-Command 'lazbuild').Source | Out-Host
         $Env:PATH+=';C:\Lazarus\fpc\3.2.2\bin\x86_64-win64'
-        (Get-Command 'instantfpc').Source | Out-Host
+        'lazbuild', 'instantfpc' | % { (Get-Command $_).Source } | Out-Host
         instantfpc -FuC:\Lazarus\components\lazutils `
           -B '.github/workflows/make.pas'
