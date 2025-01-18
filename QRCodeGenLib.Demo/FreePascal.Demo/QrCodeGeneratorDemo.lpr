@@ -5,6 +5,7 @@ program QrCodeGeneratorDemo;
 uses {$IFDEF UNIX} {$IFDEF UseCThreads}
   cthreads, {$ENDIF} {$ENDIF}
   SysUtils,
+  consoletestrunner,
   uQrCodeGeneratorDemo;
 
 begin
