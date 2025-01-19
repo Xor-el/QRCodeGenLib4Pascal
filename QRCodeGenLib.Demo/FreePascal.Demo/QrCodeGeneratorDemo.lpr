@@ -5,13 +5,13 @@ program QrCodeGeneratorDemo;
 uses {$IFDEF UNIX} {$IFDEF UseCThreads}
   cthreads, {$ENDIF} {$ENDIF}
   SysUtils,
+  consoletestrunner,
   uQrCodeGeneratorDemo;
 
 begin
   try
     { TODO -oUser -cConsole Main : Insert code here }
     TQrCodeGeneratorDemo.RunAllDemos;
-    Readln;
   except
     on E: Exception do
       Writeln(E.ClassName, ': ', E.Message);
