@@ -323,13 +323,9 @@ var
   LIdx, LBottom, LTop: Int32;
   LChar: Char;
 begin
-{$IFDEF DELPHIXE3_UP}
-  LBottom := System.Low(AText);
-  LTop := System.High(AText);
-{$ELSE}
   LBottom := 1;
   LTop := System.Length(AText);
-{$ENDIF DELPHIXE3_UP}
+
   for LIdx := LBottom to LTop do
   begin
     LChar := AText[LIdx];
@@ -348,13 +344,9 @@ var
   LIdx, LBottom, LTop: Int32;
   LChar: Char;
 begin
-{$IFDEF DELPHIXE3_UP}
-  LBottom := System.Low(AText);
-  LTop := System.High(AText);
-{$ELSE}
   LBottom := 1;
   LTop := System.Length(AText);
-{$ENDIF DELPHIXE3_UP}
+
   for LIdx := LBottom to LTop do
   begin
     LChar := AText[LIdx];
@@ -376,13 +368,10 @@ begin
   LBitBuffer := TBitBuffer.Create();
   LAccumData := 0;
   LAccumCount := 0;
-{$IFDEF DELPHIXE3_UP}
-  LBottom := System.Low(AText);
-  LTop := System.High(AText);
-{$ELSE}
+
   LBottom := 1;
   LTop := System.Length(AText);
-{$ENDIF DELPHIXE3_UP}
+
   for LIdx := LBottom to LTop do
   begin
     LChar := AText[LIdx];
@@ -472,13 +461,10 @@ begin
   LBitBuffer := TBitBuffer.Create();
   LAccumData := 0;
   LAccumCount := 0;
-{$IFDEF DELPHIXE3_UP}
-  LBottom := System.Low(ADigits);
-  LTop := System.High(ADigits);
-{$ELSE}
+
   LBottom := 1;
   LTop := System.Length(ADigits);
-{$ENDIF DELPHIXE3_UP}
+
   for LIdx := LBottom to LTop do
   begin
     LChar := ADigits[LIdx];
@@ -539,13 +525,10 @@ var
 begin
   LFiller := -1;
   LMaxChar := -1;
-{$IFDEF DELPHIXE3_UP}
-  LBottom := System.Low(ALPHANUMERIC_CHARSET);
-  LTop := System.High(ALPHANUMERIC_CHARSET);
-{$ELSE}
+
   LBottom := 1;
   LTop := System.Length(ALPHANUMERIC_CHARSET);
-{$ENDIF DELPHIXE3_UP}
+
   for LIdx := LBottom to LTop do
   begin
     LMaxChar := Max(Ord(ALPHANUMERIC_CHARSET[LIdx]), LMaxChar);
