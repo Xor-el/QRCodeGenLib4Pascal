@@ -10,13 +10,30 @@
 
 (* &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& *)
 
+{$IFDEF DELPHI}
+  {$DEFINITIONINFO ON}       // IDE navigation; no binary impact
+  {$STRINGCHECKS OFF}
+  {$WARN DUPLICATE_CTOR_DTOR OFF}
 
-{$MACRO ON}
-{$IFDEF ENDIAN_BIG}
-   {$MESSAGE FATAL 'This Library does not support "Big Endian" processors yet.'}
+  {.$DEFINE Framework_FMX} // enable to force FMX mode
+  {$IFDEF Framework_FMX}
+     {$UNDEF VCL}
+     {$DEFINE FMX}
+  {$ELSE}
+     {$DEFINE VCL}
+  {$ENDIF}
+
+  {$IFDEF VCL}
+     {$DEFINE VCL_OR_LCL}
+  {$ENDIF VCL}
+
+  // XE and Above
+  {$IF CompilerVersion >= 22.0}
+     {$DEFINE DELPHIXE_UP}
+  {$IFEND}
+
+  {$IF CompilerVersion < 24.0}
+    {$MESSAGE ERROR 'This Library requires Delphi XE3 or higher.'}
+  {$IFEND}
 {$ENDIF}
-// FPC 3.0.0 and Above
-// Had to Include this here since Delphi does not allow it Compile in "QRCodeGenLib.inc".
-{$IF FPC_FULLVERSION < 30000}
-   {$MESSAGE ERROR 'This Library requires FreePascal 3.0.0 or higher.'}
-{$IFEND}
+
