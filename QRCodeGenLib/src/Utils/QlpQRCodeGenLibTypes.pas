@@ -42,33 +42,6 @@ type
   /// </summary>
   TQRCodeGenLibGenericArray<T> = array of T;
 
-{$IFDEF DELPHIXE_UP}
-  /// <summary>
-  /// Represents a dynamic array of Int32.
-  /// </summary>
-  TQRCodeGenLibInt32Array = TArray<Int32>;
-
-  /// <summary>
-  /// Represents a dynamic array of Boolean.
-  /// </summary>
-  TQRCodeGenLibBooleanArray = TArray<Boolean>;
-
-  /// <summary>
-  /// Represents a dynamic array of String.
-  /// </summary>
-  TQRCodeGenLibStringArray = TArray<String>;
-
-  /// <summary>
-  /// Represents a dynamic array of array of Byte.
-  /// </summary>
-  TQRCodeGenLibMatrixByteArray = TArray<TQRCodeGenLibByteArray>;
-
-  /// <summary>
-  /// Represents a dynamic array of array of Int32.
-  /// </summary>
-  TQRCodeGenLibMatrixInt32Array = TArray<TQRCodeGenLibInt32Array>;
-
-{$ELSE}
   /// <summary>
   /// Represents a dynamic array of Int32.
   /// </summary>
@@ -94,7 +67,6 @@ type
   /// </summary>
   TQRCodeGenLibMatrixInt32Array = array of TQRCodeGenLibInt32Array;
 
-{$ENDIF DELPHIXE_UP}
   TQRCodeGenLibColor =
 {$IF DEFINED(VCL_OR_LCL)}TColor{$ELSEIF DEFINED(FCL)}TFPColor{$ELSEIF DEFINED(FMX)}TAlphaColor{$IFEND VCL_OR_LCL};
 {$IFDEF FCL}

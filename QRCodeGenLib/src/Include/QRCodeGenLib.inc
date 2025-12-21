@@ -38,11 +38,6 @@
      {$DEFINE VCL_OR_LCL}
   {$ENDIF VCL}
 
-  // XE and Above
-  {$IF CompilerVersion >= 22.0}
-     {$DEFINE DELPHIXE_UP}
-  {$IFEND}
-
 {$ENDIF}
 
 {========================== Common Compiler Settings ==========================}
