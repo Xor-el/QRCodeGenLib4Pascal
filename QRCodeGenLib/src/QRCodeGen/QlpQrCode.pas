@@ -52,7 +52,6 @@ type
   public
 
     type
-{$SCOPEDENUMS ON}
     /// <summary>
     /// The error correction level in a QR Code symbol.
     /// </summary>
@@ -75,7 +74,7 @@ type
       eccHigh = 2
 
       );
-{$SCOPEDENUMS OFF}
+
   strict private
   const
     UNIX_NEW_LINE = Char(#10);

@@ -1,60 +1,144 @@
-# QRCodeGenLib4Pascal [![License](http://img.shields.io/badge/license-MIT-green.svg)](https://github.com/Xor-el/QRCodeGenLib4Pascal/blob/master/LICENSE)
-QRCodeGenLib4Pascal is a Delphi/FPC Port of [Fast-QR-Code-generator](https://www.nayuki.io/page/fast-qr-code-generator-library) written by [Nayuki](https://www.nayuki.io/). It provides an easy to use interface for generating QR Codes.
+# QRCodeGenLib4Pascal
 
-**Build Status**
 [![Build Status](https://github.com/Xor-el/QRCodeGenLib4Pascal/actions/workflows/make.yml/badge.svg)](https://github.com/Xor-el/QRCodeGenLib4Pascal/actions/workflows/make.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/Xor-el/QRCodeGenLib4Pascal/blob/master/LICENSE)
+[![Delphi](https://img.shields.io/badge/Delphi-XE3%2B-red.svg)](https://www.embarcadero.com/products/delphi)
+[![FreePascal](https://img.shields.io/badge/FreePascal-3.0.0%2B-blue.svg)](https://www.freepascal.org/)
 
-Features
---------
+**QRCodeGenLib4Pascal** is a Delphi/FreePascal port of [Fast-QR-Code-generator](https://www.nayuki.io/page/fast-qr-code-generator-library) by [Nayuki](https://www.nayuki.io/), providing an easy-to-use interface for generating QR Codes, released under the permissive [MIT License](LICENSE).
 
-Core features:
+## Table of Contents
 
-* Supports encoding all 40 versions (sizes) and all 4 error correction levels, as per the QR Code Model 2 standard
-* Output formats: Raw modules/pixels of the QR symbol, SVG XML string/file, `ImageObject`(`bmp` (`jpg` and `png`) for `VCL` and `LCL` only).
-* Encodes numeric and special-alphanumeric text in less space than general text
-* Ability to change the backgound and foreground colors of the generated QRCode.
-* Open source code under the permissive MIT License
+- [Features](#features)
+- [Getting Started](#getting-started)
+- [Quick Examples](#quick-examples)
+- [Running Demos](#running-demos)
+- [Contributing](#contributing)
+- [Tip Jar](#tip-jar)
+- [License](#license)
 
-Manual parameters:
+## Features
 
-* User can specify minimum and maximum version numbers allowed, then library will automatically choose smallest version in the range that fits the data
-* User can specify mask pattern manually, otherwise library will automatically evaluate all 8 masks and select the optimal one
-* User can specify absolute error correction level, or allow the library to boost it if it doesn't increase the version number
-* User can create a list of data segments manually and add ECI segments
+- **All QR versions and error correction levels** -- supports encoding all 40 versions (sizes) and all 4 error correction levels, as per the QR Code Model 2 standard
+- **Multiple output formats** -- raw modules/pixels, SVG XML string/file, `ImageObject` (`bmp`, `jpg`, `png`) for VCL and LCL
+- **Efficient encoding** -- numeric and special-alphanumeric text encoded in less space than general text
+- **Customizable colors** -- configurable background and foreground colors for generated QR codes
+- **Fine-grained control** -- specify version range, mask pattern, error correction level, or let the library choose optimal values automatically
+- **ECI segments** -- manually create data segment lists and add ECI segments
+- **Cross-framework** -- FCL, VCL (Delphi), LCL (Lazarus), and experimental FMX support
 
-**Supported Compilers**
- 
-    FreePascal 3.0.0 and Above.
-    
-    Delphi XE3 and Above.
-    
-**Supported Visual Frameworks**
- 
-    LCL Framework (Lazarus)
-    
-    VCL Framework (Delphi)
-    
-    FMX (Support is currently experimental, to use, enable the define "{.$DEFINE Framework_FMX}" in "QRCodeGenLib.inc").
+## Getting Started
 
-**Installing the Library.**
+### Prerequisites
 
-**Method One:**
+| Compiler | Minimum Version |
+|---|---|
+| Delphi | XE3 or later |
+| FreePascal | 3.0.0 or later |
 
- Use the Provided Packages in the "Packages" Folder.
+### Supported Frameworks
 
-**Method Two:**
+| Framework | Notes |
+|---|---|
+| FCL | Default mode |
+| VCL | Delphi |
+| LCL | Lazarus |
+| FMX | Experimental -- enable `{.$DEFINE Framework_FMX}` in `QRCodeGenLib.inc` |
 
- Add the Library Path and Sub Path to your Project Search Path.
+### Installation
 
-**Demos**
+**Method 1: Using Packages**
 
- Check out the `QRCodeGenLib.Demo` folder.
+Use the provided packages in the `Packages` folder.
 
-**License**
+**Method 2: Search Path**
 
-This "Software" is Licensed Under  **`MIT License (MIT)`** .
+Add the library path and its subdirectories to your project's search path.
 
-#### Tip Jar
-* :dollar: **Bitcoin**: `1MhFfW7tDuEHQSgie65uJcAfJgCNchGeKf`
-* :euro: **Ethereum**: `0x6c1DC21aeC49A822A4f1E3bf07c623C2C1978a98`
-* :pound: **Pascalcoin**: `345367-40`
+## Quick Examples
+
+### Generate a Simple QR Code (SVG)
+
+```pascal
+uses
+  SysUtils, QlpQRCodeGenLibTypes, QlpQRCode, QlpIQRCode;  
+
+var
+  LQR: IQRCode;
+  LSVG: String;
+begin
+  LQR := TQRCode.EncodeText('Hello QRCodeGenLib4Pascal',
+    TQrCode.TEcc.eccLow, TEncoding.UTF8);
+  LSVG := LQR.ToSVGString(4);
+
+  WriteLn(LSVG);   
+end;
+```
+
+### Generate a QR Code with Custom Colors (BMP -- VCL/LCL)
+
+```pascal
+uses
+  SysUtils, Graphics, QlpQRCodeGenLibTypes, QlpQRCode, QlpIQrCode;  
+
+var
+  LQR: IQRCode;
+  LBmp: TQRCodeGenLibBitmap;
+begin
+  LQR := TQRCode.EncodeText('Custom colors!',
+    TQRCode.TEcc.eccMedium, TEncoding.UTF8);
+
+  LBmp := LQR.ToBitmapImage(10, 4); 
+  try
+    LBmp.SaveToFile('qrcode.bmp');
+  finally
+    LBmp.Free;
+  end; 
+end;
+```
+
+### Advanced: Manual Segment with Version Range
+
+```pascal
+uses
+  SysUtils, QlpQRCodeGenLibTypes, QlpQRCode, QlpIQRCode, QlpQRSegment, QlpIQRSegment; 
+
+var
+  LSegments: TArray<IQrSegment>;
+  LQR: IQRCode;  
+begin
+  LSegments := TQRSegment.MakeSegments('0123456789', TEncoding.UTF8);
+
+  LQR := TQRCode.EncodeSegments(LSegments,
+    TQRCode.TEcc.eccHigh,
+    5,   // minimum version
+    10,  // maximum version
+    -1,  // auto mask
+    True // boost ECC
+  );
+
+  WriteLn(LQR.ToSVGString(4));
+end;
+```
+
+## Running Demos
+
+Check out the `QRCodeGenLib.Demo` folder for complete working examples.
+
+## Contributing
+
+Contributions are welcome. Please open an [issue](https://github.com/Xor-el/QRCodeGenLib4Pascal/issues) for bug reports or feature requests, and submit pull requests.
+
+## Tip Jar
+
+If you find this library useful and would like to support its continued development, tips are greatly appreciated! 🙏
+
+| Cryptocurrency | Wallet Address |
+|---|---|
+| <img src="https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/32/icon/btc.png" width="20" alt="Bitcoin" /> **Bitcoin (BTC)** | `bc1quqhe342vw4ml909g334w9ygade64szqupqulmu` |
+| <img src="https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/32/icon/eth.png" width="20" alt="Ethereum" /> **Ethereum (ETH)** | `0x53651185b7467c27facab542da5868bfebe2bb69` |
+| <img src="https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/32/icon/sol.png" width="20" alt="Solana" /> **Solana (SOL)** | `BPZHjY1eYCdQjLecumvrTJRi5TXj3Yz1vAWcmyEB9Miu` |
+
+## License
+
+QRCodeGenLib4Pascal is released under the [MIT License](LICENSE).
