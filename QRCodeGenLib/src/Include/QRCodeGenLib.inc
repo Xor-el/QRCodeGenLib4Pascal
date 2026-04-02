@@ -1,14 +1,15 @@
-{ *********************************************************************************** }
-{ *                              QRCodeGenLib Library                               * }
-{ *                          Author - Ugochukwu Mmaduekwe                           * }
-{ *                 Github Repository <https://github.com/Xor-el>                   * }
+{ * ************************************************************************ * }
+{ *                           QRCodeGenLib Library                           * }
+{ *                       Author - Ugochukwu Mmaduekwe                       * }
+{ *              Github Repository <https://github.com/Xor-el>               * }
+{ *                                                                          * }
+{ *  Distributed under the MIT software license, see the accompanying file   * }
+{ *                                 LICENSE                                  * }
+{ *         or visit http://www.opensource.org/licenses/mit-license.         * }
+{ *                                                                          * }
+{ * ************************************************************************ * }
 
-{ *  Distributed under the MIT software license, see the accompanying file LICENSE  * }
-{ *          or visit http://www.opensource.org/licenses/mit-license.php.           * }
-
-{ * ******************************************************************************* * }
-
-(* &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& *)
+(* &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& *)
 
 {========================= Compiler Specific Settings =========================}
 
