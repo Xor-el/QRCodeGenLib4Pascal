@@ -40,7 +40,7 @@
 
 | Framework | Notes |
 |---|---|
-| FCL | Default mode |
+| FCL | FreePascal |
 | VCL | Delphi |
 | LCL | Lazarus |
 | FMX | Experimental -- enable `{.$DEFINE Framework_FMX}` in `QRCodeGenLib.inc` |
