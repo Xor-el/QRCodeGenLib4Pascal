@@ -2,8 +2,8 @@
 
 ## Primary mark
 
-- **Default:** `logo.svg` — **scan frame** around a **white QR tile**: cyan **corner brackets** (viewfinder) and a **6×6 module** pattern (stylized, not a real payload). Reads as **QR generation / encoding**, not a scanner app icon alone.
-- **Dark UI:** `logo-dark.svg` — same layout on a **near-black** badge, **slate** inner tile, **light** modules, **bright cyan** frame.
+- **Default:** [`logo.svg`](logo.svg) — **scan frame** around a **white QR tile**: cyan **corner brackets** (viewfinder) and a **6×6 module** pattern (stylized, not a real payload). Reads as **QR generation / encoding**, not a scanner app icon alone.
+- **Dark UI:** [`logo-dark.svg`](logo-dark.svg) — same layout on a **near-black** badge, **slate** inner tile, **light** modules, **bright cyan** frame.
 
 **QR Code** is a registered trademark of **DENSO WAVE INCORPORATED**. This mark is an original graphic for the library project; it does not imply endorsement by Denso Wave.
 
@@ -19,7 +19,7 @@
 
 Dark variant uses `#0f172a`–`#020617`, tile `#1e293b`, frame `#67e8f9`, modules `#e2e8f0`.
 
-**Banner background** (flat fill behind the logo in wide `export/*.png` social / OG assets): RGB **13, 74, 110** (`#0d4a6e`) — aligned with the default badge teal; +1 red vs `#0c4a6e` so the squircle rim is visible on composites.
+**Banner background** (flat fill behind the logo for wide social and Open Graph PNGs [here](export/)): RGB **13, 74, 110** (`#0d4a6e`) — aligned with the default badge teal; +1 red vs `#0c4a6e` so the squircle rim is visible on composites.
 
 ## Typography (pairing)
 
@@ -46,7 +46,7 @@ Keep padding around the badge at least **1/4 of the mark’s width** (e.g. ~32 p
 ## Incorrect use
 
 - Do not **stretch** or **skew** the badge.
-- Do not **change hue** arbitrarily without updating this doc.
+- Do not **change hue** arbitrarily (keep palette cohesive with the table above or update this doc when rebranding).
 - Do not **crop** away the rounded corners entirely.
 - Do not imply **QR Code trademark** ownership; attribute the standard where appropriate in docs.
 
