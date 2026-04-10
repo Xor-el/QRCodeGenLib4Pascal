@@ -1,9 +1,15 @@
-# QRCodeGenLib4Pascal
+<p align="center">
+  <img src="assets/branding/logo.svg" width="160" alt="QRCodeGenLib4Pascal logo" />
+  <h1 align="center">QRCodeGenLib4Pascal</h1>
+  <p align="center">
+    <a href="https://github.com/Xor-el/QRCodeGenLib4Pascal/actions/workflows/make.yml"><img src="https://github.com/Xor-el/QRCodeGenLib4Pascal/actions/workflows/make.yml/badge.svg" alt="Build Status"></a>
+    <a href="https://github.com/Xor-el/QRCodeGenLib4Pascal/blob/master/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License: MIT"></a>
+    <a href="https://www.embarcadero.com/products/delphi"><img src="https://img.shields.io/badge/Delphi-XE3%2B-red.svg" alt="Delphi XE3+"></a>
+    <a href="https://www.freepascal.org/"><img src="https://img.shields.io/badge/FreePascal-3.0.0%2B-blue.svg" alt="FreePascal 3.0.0+"></a>
+  </p>
+</p>
 
-[![Build Status](https://github.com/Xor-el/QRCodeGenLib4Pascal/actions/workflows/make.yml/badge.svg)](https://github.com/Xor-el/QRCodeGenLib4Pascal/actions/workflows/make.yml)
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/Xor-el/QRCodeGenLib4Pascal/blob/master/LICENSE)
-[![Delphi](https://img.shields.io/badge/Delphi-XE3%2B-red.svg)](https://www.embarcadero.com/products/delphi)
-[![FreePascal](https://img.shields.io/badge/FreePascal-3.0.0%2B-blue.svg)](https://www.freepascal.org/)
+---
 
 **QRCodeGenLib4Pascal** is a Delphi/FreePascal port of [Fast-QR-Code-generator](https://www.nayuki.io/page/fast-qr-code-generator-library) by [Nayuki](https://www.nayuki.io/), providing an easy-to-use interface for generating QR Codes, released under the permissive [MIT License](LICENSE).
 
@@ -16,6 +22,7 @@
 - [Contributing](#contributing)
 - [Tip Jar](#tip-jar)
 - [License](#license)
+- [Branding](assets/branding/README.md)
 
 ## Features
 

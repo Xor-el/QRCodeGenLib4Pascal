@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  QRCodeGenLib4Pascal project mark (not affiliated with Denso, QR Code is a registered trademark of DENSO WAVE).
+  Metaphor: scan frame and QR modules; encoding / generator library.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title desc">
+  <title id="title">QRCodeGenLib4Pascal</title>
+  <desc id="desc">Rounded badge with a scan frame and QR-style modules on a white tile.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0c4a6e"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="26" fill="url(#bg)"/>
+  <rect x="30" y="30" width="68" height="68" rx="4" fill="#f8fafc"/>
+  <g fill="none" stroke="#22d3ee" stroke-width="4" stroke-linecap="round">
+    <path d="M 36 42 L 36 36 L 42 36"/>
+    <path d="M 86 36 L 92 36 L 92 42"/>
+    <path d="M 92 86 L 92 92 L 86 92"/>
+    <path d="M 42 92 L 36 92 L 36 86"/>
+  </g>
+  <g fill="#0f172a" transform="translate(44, 44)">
+    <rect x="0" y="0" width="5" height="5"/>
+    <rect x="7" y="0" width="5" height="5"/>
+    <rect x="14" y="0" width="5" height="5"/>
+    <rect x="21" y="0" width="5" height="5"/>
+    <rect x="28" y="0" width="5" height="5"/>
+    <rect x="35" y="0" width="5" height="5"/>
+    <rect x="0" y="7" width="5" height="5"/>
+    <rect x="14" y="7" width="5" height="5"/>
+    <rect x="28" y="7" width="5" height="5"/>
+    <rect x="35" y="7" width="5" height="5"/>
+    <rect x="0" y="14" width="5" height="5"/>
+    <rect x="7" y="14" width="5" height="5"/>
+    <rect x="21" y="14" width="5" height="5"/>
+    <rect x="35" y="14" width="5" height="5"/>
+    <rect x="0" y="21" width="5" height="5"/>
+    <rect x="14" y="21" width="5" height="5"/>
+    <rect x="21" y="21" width="5" height="5"/>
+    <rect x="28" y="21" width="5" height="5"/>
+    <rect x="35" y="21" width="5" height="5"/>
+    <rect x="7" y="28" width="5" height="5"/>
+    <rect x="21" y="28" width="5" height="5"/>
+    <rect x="35" y="28" width="5" height="5"/>
+    <rect x="0" y="35" width="5" height="5"/>
+    <rect x="7" y="35" width="5" height="5"/>
+    <rect x="14" y="35" width="5" height="5"/>
+    <rect x="28" y="35" width="5" height="5"/>
+    <rect x="35" y="35" width="5" height="5"/>
+  </g>
+</svg>
