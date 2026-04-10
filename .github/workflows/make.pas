@@ -433,9 +433,29 @@ begin
 end;
 
 // ---------------------------------------------------------------------------
-// Determine whether an .lpi project is a test runner
+// Project classification helpers
 // ---------------------------------------------------------------------------
 
+// A project is considered GUI if its .lpi lists LCL as a required package.
+// GUI projects cannot run headless in CI, so we skip them entirely.
+function IsGUIProject(const ALpiPath: string): Boolean;
+var
+  Content: string;
+  Filter: TRegExpr;
+begin
+  Result := False;
+  if not FileExists(ALpiPath) then
+    Exit;
+  Content := ReadFileToString(ALpiPath);
+  Filter := TRegExpr.Create('<PackageName\s+Value="LCL"\s*/>');
+  try
+    Result := Filter.Exec(Content);
+  finally
+    Filter.Free;
+  end;
+end;
+
+// A console project is a test runner if its .lpr uses consoletestrunner.
 function IsTestProject(const ALpiPath: string): Boolean;
 var
   LprPath, Content: string;
@@ -478,10 +498,18 @@ begin
   List := FindAllFilesList(Target, '*.lpi');
   try
     for Each in List do
+    begin
+      if IsGUIProject(Each) then
+      begin
+        Log(CSI_Yellow, 'skip GUI project ' + Each);
+        Continue;
+      end;
+
       if IsTestProject(Each) then
         RunTestProject(Each)
       else
         RunSampleProject(Each);
+    end;
   finally
     List.Free;
   end;
