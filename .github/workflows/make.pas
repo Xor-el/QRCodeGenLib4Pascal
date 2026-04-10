@@ -305,6 +305,36 @@ begin
 end;
 
 // ---------------------------------------------------------------------------
+// Build and run a sample (non-test) project
+// ---------------------------------------------------------------------------
+
+procedure RunSampleProject(const APath: string);
+var
+  BinaryPath, SampleOutput: string;
+begin
+  BinaryPath := BuildProject(APath);
+  if BinaryPath = '' then
+    Exit;
+  try
+    Log(CSI_Yellow, 'run ' + BinaryPath);
+    if RunCommand(BinaryPath, [], SampleOutput) then
+      WriteLn(SampleOutput)
+    else
+    begin
+      Inc(ErrorCount);
+      Log(CSI_Red, 'sample execution failed: ' + BinaryPath);
+      WriteLn(stderr, SampleOutput);
+    end;
+  except
+    on E: Exception do
+    begin
+      Inc(ErrorCount);
+      Log(CSI_Red, E.ClassName + ': ' + E.Message);
+    end;
+  end;
+end;
+
+// ---------------------------------------------------------------------------
 // Shared download + extract
 // ---------------------------------------------------------------------------
 
@@ -437,7 +467,7 @@ begin
 end;
 
 // ---------------------------------------------------------------------------
-// Build (and optionally test) all .lpi projects found under Target
+// Build (and optionally test/run) all .lpi projects found under Target
 // ---------------------------------------------------------------------------
 
 procedure BuildAllProjects;
@@ -451,7 +481,7 @@ begin
       if IsTestProject(Each) then
         RunTestProject(Each)
       else
-        BuildProject(Each);
+        RunSampleProject(Each);
   finally
     List.Free;
   end;
